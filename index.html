@@ -85,6 +85,8 @@
         }
 
         .login-card input {
+            /* SỬA LỖI FONT: Ép dùng font Nunito cho ô nhập */
+            font-family: 'Nunito', sans-serif;
             width: 100%;
             padding: 12px;
             margin-top: 15px;
@@ -119,17 +121,21 @@
         }
 
         .btn-confirm {
+            /* SỬA LỖI FONT: Ép dùng font Nunito và độ dày 900 */
+            font-family: 'Nunito', sans-serif;
             background: linear-gradient(45deg, var(--red-lixi), #b71c1c);
             color: white;
             border: none;
             padding: 12px 40px;
-            font-size: 1.1rem;
+            font-size: 1.2rem; /* Tăng cỡ chữ lên chút */
             border-radius: 50px;
             cursor: pointer;
-            font-weight: 800;
+            font-weight: 900; /* Dùng 900 (Black) thay vì 800 để khớp font đã tải */
             margin-top: 25px;
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.5);
             transition: transform 0.2s;
+            text-transform: uppercase; /* Viết hoa toàn bộ cho đẹp */
+            letter-spacing: 1px;
         }
         .btn-confirm:active { transform: scale(0.95); }
 
@@ -193,6 +199,8 @@
         }
 
         #btn-toggle-sound {
+            /* SỬA LỖI FONT cho nút nhạc luôn */
+            font-family: 'Nunito', sans-serif;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -291,7 +299,6 @@
             line-height: 1.2;
         }
 
-        /* Hiển thị lỗi Firebase góc màn hình để debug */
         #firebase-status {
             position: absolute;
             top: 5px; left: 5px;
@@ -305,7 +312,6 @@
 </head>
 <body>
 
-    <!-- VIDEO & AUDIO NỀN -->
     <video id="bg-video" autoplay muted loop playsinline>
         <source src="video_nen.mp4" type="video/mp4">
     </video>
@@ -315,12 +321,10 @@
     <div id="bg-overlay"></div>
     <div id="firebase-status">Firebase Status: Connecting...</div>
 
-    <!-- Nút bật/tắt nhạc -->
     <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
         🔊 Bật/Tắt Nhạc
     </button>
 
-    <!-- Màn hình nhập tên -->
     <div id="login-screen">
         <div class="login-card">
             <h1>Lì Xì 2026</h1>
@@ -334,7 +338,6 @@
             <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
         </div>
 
-        <!-- Dòng chữ chạy (Kết quả Online) -->
         <div class="marquee-container">
             <div class="marquee-text" id="history-text">
                 Đang tải danh sách người trúng thưởng...
@@ -342,7 +345,6 @@
         </div>
     </div>
 
-    <!-- Màn hình Game -->
     <div id="game-container">
         <div class="header-info">
             <div class="header-pill">
@@ -351,7 +353,6 @@
         </div>
     </div>
 
-    <!-- Modal Kết quả -->
     <div class="result-overlay" id="result-modal">
         <div class="result-card">
             <h2 style="color: var(--red-lixi); margin:0;">🎉 Chúc Mừng 🎉</h2>
@@ -365,21 +366,17 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- CẤU HÌNH FIREBASE (DÁN CONFIG CỦA BẠN VÀO ĐÂY) ---
         let firebaseConfig;
         
-        // KIỂM TRA XEM CÓ BIẾN MÔI TRƯỜNG KHÔNG (CHO CANVAS)
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // !!! BẠN HÃY DÁN CONFIG THẬT CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC DƯỚI ĐÂY !!!
-            // Nếu vẫn để nguyên "API_KEY_CUA_BAN", nó sẽ chạy chế độ Offline (LocalStorage)
+            // !!! DÙNG CONFIG CỦA BẠN !!!
             firebaseConfig = {
                 apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
                 authDomain: "tets-4bdc2.firebaseapp.com",
@@ -394,7 +391,6 @@
         let isFirebaseReady = false;
         let fullHistoryData = [];
 
-        // --- CƠ CHẾ DỰ PHÒNG LOCALSTORAGE (OFFLINE MODE) ---
         const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026';
         
         function loadFromLocalStorage() {
@@ -404,7 +400,6 @@
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
             
-            // Nếu chưa có dữ liệu, tạo dữ liệu giả cho đẹp
             if (localData.length === 0) {
                 localData = [
                     { name: "Hệ Thống", prize: "Chế độ Offline" },
@@ -425,24 +420,22 @@
             updateMarquee(localData);
         }
 
-        // --- KẾT NỐI FIREBASE ---
         try {
-            // Chỉ kết nối nếu config không phải là config mẫu
             if (firebaseConfig.apiKey !== "API_KEY_CUA_BAN") {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                     // Canvas Auth (Bỏ qua)
+                     // Canvas logic
                 } else {
                     signInAnonymously(auth).then(() => {
-                        console.log("Firebase Connected via Anonymous Auth");
+                        console.log("Firebase Connected");
                         document.getElementById('firebase-status').innerText = "Firebase: Connected";
                         isFirebaseReady = true;
                     }).catch((error) => {
                         console.error("Firebase Auth Error:", error);
-                        loadFromLocalStorage(); // Fallback
+                        loadFromLocalStorage();
                     });
                 }
                 
@@ -454,7 +447,7 @@
                     }
                 });
             } else {
-                console.warn("Chưa thay config Firebase. Chuyển sang chế độ LocalStorage.");
+                console.warn("Chưa thay config Firebase.");
                 loadFromLocalStorage();
             }
         } catch (e) {
@@ -488,8 +481,7 @@
                     updateMarquee(recentWinners);
                 }
             }, (error) => {
-                console.error("Firestore Error (Check Rules):", error);
-                // Nếu lỗi quyền truy cập (Permission Denied) -> Chuyển sang LocalStorage
+                console.error("Firestore Error:", error);
                 loadFromLocalStorage();
             });
         }
@@ -506,7 +498,6 @@
         }
 
         window.saveResultToFirebase = async (name, prize) => {
-            // Nếu Firebase sẵn sàng thì lưu lên mây
             if (db && isFirebaseReady) {
                 try {
                     await addDoc(collection(db, COLLECTION_NAME), {
@@ -515,19 +506,15 @@
                         timestamp: Date.now(),
                         uid: userId
                     });
-                    console.log("Saved to Firebase");
                 } catch (e) {
                     console.error("Save Error:", e);
-                    // Nếu lỗi lưu (ví dụ mạng lag), lưu tạm vào LocalStorage để không mất
                     saveToLocalStorage(name, prize);
                 }
             } else {
-                // Nếu đang chạy chế độ offline -> Lưu LocalStorage
                 saveToLocalStorage(name, prize);
             }
         };
 
-        // --- LOGIC GAME ---
         const BUBBLE_COUNT = 15; 
         const SPEED_BASE = 1.0; 
         
@@ -540,7 +527,6 @@
             { class: 'style-red-2', en: 'HẠNH PHÚC', vn: 'Tết', icon: '🥰', isSub: true }
         ];
 
-        // DANH SÁCH QUÀ "CÀ KHỊA" CHO NGƯỜI THƯỜNG
         const prizes = [
             "Cái nịt (Limited Edition) 🎀",
             "Một tràng pháo tay 👏",
@@ -602,12 +588,11 @@
                 return;
             }
 
-            // Kiểm tra trùng tên (Lấy từ fullHistoryData dù là online hay offline)
             const playCount = fullHistoryData.filter(p => p.name.toLowerCase() === rawName.toLowerCase()).length;
 
             if (playCount >= 2) {
                 input.classList.add('error');
-                errorMsg.innerHTML = `⚠️ Tên "<b>${rawName}</b>" đã tham gia 2 lần rồi!<br>Vui lòng nhập thêm họ/đệm (VD: Nguyễn ${rawName})`;
+                errorMsg.innerHTML = `⚠️ Tên "<b>${rawName}</b>" đã hết lượt tham gia!<br>Quy định: Tối đa 2 người cùng tên được nhận thưởng.`;
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -682,7 +667,6 @@
                 let prize;
                 const n = userName.toLowerCase();
 
-                // Logic chia quà
                 if (n.includes('quang') || n.includes('hải') || n.includes('hoàng') || n.includes('đạt')) {
                     prize = "5.000 VNĐ";
                 } 
@@ -693,7 +677,6 @@
                     prize = prizes[Math.floor(Math.random() * prizes.length)];
                 }
                 
-                // Gọi hàm lưu (tự động chọn Firebase hoặc LocalStorage)
                 if (window.saveResultToFirebase) {
                     window.saveResultToFirebase(userName, prize);
                 }
