@@ -2,8 +2,9 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Săn Lì Xì 2026 (Online)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Pacifico&display=swap');
 
@@ -20,10 +21,13 @@
             padding: 0;
             font-family: 'Nunito', sans-serif;
             background-color: #3e0a0a;
+            background: linear-gradient(135deg, #3e0a0a 0%, #7f0000 100%);
             height: 100vh;
+            /* Hỗ trợ tính chiều cao full trên mobile (tránh thanh address bar che) */
+            height: 100dvh; 
             overflow: hidden;
             user-select: none;
-            touch-action: none; /* Chặn zoom/kéo trên mobile */
+            touch-action: none;
         }
 
         /* --- GLOBAL BACKGROUND --- */
@@ -34,13 +38,13 @@
             width: auto; height: auto;
             transform: translate(-50%, -50%);
             z-index: -2;
-            object-fit: cover; /* Quan trọng: Giúp video luôn full màn hình dù dọc hay ngang */
+            object-fit: cover;
         }
 
         #bg-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.35); /* Tối hơn xíu để chữ dễ đọc trên mobile */
+            background: rgba(0,0,0,0.35);
             z-index: -1;
             pointer-events: none;
         }
@@ -55,7 +59,7 @@
             background: rgba(0, 0, 0, 0.3); 
             z-index: 100;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s;
-            padding: 20px; /* Đệm lề để không sát mép đt */
+            padding: 20px;
             box-sizing: border-box;
         }
 
@@ -71,12 +75,12 @@
             border-radius: 25px;
             text-align: center;
             width: 100%;
-            max-width: 420px; /* Giới hạn chiều rộng trên PC */
+            max-width: 420px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
             border: 4px solid var(--gold);
             position: relative;
             backdrop-filter: blur(10px);
-            margin-bottom: 50px; 
+            margin-bottom: 80px; /* Đẩy lên cao hơn để không đè vào marquee */
         }
 
         .login-card h1 {
@@ -143,20 +147,20 @@
             transition: transform 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
-            width: 100%; /* Nút to full chiều ngang trên mobile bấm cho dễ */
+            width: 100%;
         }
         .btn-confirm:active { transform: scale(0.95); }
 
         /* --- DÒNG CHỮ CHẠY (MARQUEE) --- */
         .marquee-container {
             position: absolute;
-            bottom: 5%; /* Cao hơn chút để tránh mép dưới điện thoại tai thỏ */
+            /* Đặt cố định ở đáy, dùng padding-bottom để tránh tai thỏ/home bar */
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 45px;
-            background: rgba(183, 28, 28, 0.85); /* Nền đỏ đậm cho dễ đọc */
+            height: 50px; /* Tăng chiều cao xíu */
+            background: rgba(183, 28, 28, 0.95); /* Đậm hơn cho dễ đọc */
             border-top: 2px solid var(--gold);
-            border-bottom: 2px solid var(--gold);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -164,14 +168,19 @@
             color: #fff;
             font-family: 'Nunito', sans-serif;
             font-size: 1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            /* Quan trọng cho iPhone đời mới: chừa chỗ cho thanh gạch ngang bên dưới */
+            padding-bottom: env(safe-area-inset-bottom);
+            box-sizing: content-box; /* Để padding không ăn vào height */
+            z-index: 101; /* Cao hơn login card một chút để chắc chắn nổi */
         }
 
         .marquee-text {
             display: inline-block;
             padding-left: 100%;
-            animation: scroll 20s linear infinite;
+            animation: scroll 25s linear infinite; /* Chậm lại chút cho dễ đọc */
             font-weight: bold;
+            line-height: 50px;
         }
 
         @keyframes scroll {
@@ -184,12 +193,14 @@
             position: relative;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
 
         .header-info {
             position: absolute;
-            top: 20px; left: 0; right: 0;
+            top: 60px; /* Hạ thấp xuống để tránh nút nhạc ở trên */
+            left: 0; right: 0;
             text-align: center;
             z-index: 10;
             pointer-events: none;
@@ -206,24 +217,26 @@
             border: 2px solid var(--gold);
             font-size: 1.1rem;
             backdrop-filter: blur(5px);
-            max-width: 90%; /* Để không bị tràn màn hình điện thoại */
+            max-width: 90%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
+        /* --- SỬA VỊ TRÍ NÚT NHẠC --- */
         #btn-toggle-sound {
             font-family: 'Nunito', sans-serif;
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 200;
+            /* Đưa lên góc TRÊN TRÁI để tránh che bên dưới và không vướng header */
+            top: 15px;
+            left: 15px;
+            z-index: 9999; /* Luôn nổi trên cùng */
             background: rgba(0,0,0,0.6);
             color: white;
             border: 1px solid rgba(255,255,255,0.5);
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -233,14 +246,12 @@
         }
         #btn-toggle-sound:hover {
             background: var(--red-lixi);
-            transform: scale(1.05);
         }
 
         /* --- STYLE BAO LÌ XÌ --- */
-        /* Mặc định cho PC */
         .lixi-bubble {
             position: absolute;
-            width: 110px; /* To hơn chút trên PC cho đẹp */
+            width: 110px;
             height: 200px;
             border-radius: 10px;
             cursor: pointer;
@@ -262,7 +273,6 @@
         .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.5rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
         .lx-icon { font-size: 3rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
 
-        /* Style màu sắc */
         .style-yellow { background: #fbc02d; color: white; border-color: #fff9c4; }
         .style-yellow .lx-vn { text-shadow: 2px 2px 0 #f57f17; }
         .style-red-1 { background: #d32f2f; color: white; border-color: #ffcdd2; }
@@ -320,24 +330,24 @@
 
         #firebase-status {
             position: absolute;
-            top: 5px; left: 5px;
+            top: 5px; right: 5px; /* Chuyển sang phải cho đỡ vướng nút nhạc */
             font-size: 10px;
             color: rgba(255,255,255,0.7);
             z-index: 999;
             pointer-events: none;
+            text-align: right;
         }
 
-        /* === MEDIA QUERY CHO MOBILE (Màn hình dọc) === */
         @media (max-width: 768px) {
             .login-card {
                 padding: 30px 20px;
-                max-width: 95%; /* Chiếm gần hết chiều ngang */
+                max-width: 95%;
+                /* Mobile: thẻ login nhỏ gọn hơn */
+                margin-bottom: 100px; 
             }
             .login-card h1 {
                 font-size: 2rem;
             }
-            
-            /* Điều chỉnh kích thước bao lì xì nhỏ hơn trên mobile */
             .lixi-bubble {
                 width: 90px;
                 height: 160px;
@@ -347,44 +357,45 @@
             .lx-icon { font-size: 2.2rem; }
             .lx-en { font-size: 0.6rem; }
             
-            /* Nút nhạc nhỏ gọn hơn */
+            /* Nút nhạc trên mobile */
             #btn-toggle-sound {
-                padding: 8px 12px;
+                top: 15px;
+                left: 15px;
+                padding: 6px 12px;
                 font-size: 0.8rem;
-                bottom: 15px;
-                right: 15px;
             }
 
             .marquee-container {
-                height: 40px;
-                font-size: 0.85rem;
-                bottom: 0; /* Dính đáy màn hình trên mobile */
+                /* Đảm bảo chữ chạy không bị che */
+                height: 40px; 
+                line-height: 40px;
             }
             
-            /* Modal kết quả trên mobile */
             .result-card {
                 padding: 30px 20px;
             }
             .prize-amount {
-                font-size: 1.5rem; /* Chữ nhỏ lại xíu để không bị tràn */
+                font-size: 1.5rem;
             }
         }
-
     </style>
 </head>
 <body>
 
+    <!-- VIDEO BACKGROUND -->
     <video id="bg-video" autoplay muted loop playsinline>
         <source src="video_nen.mp4" type="video/mp4">
     </video>
-    <audio id="bg-music" autoplay loop>
+    <!-- AUDIO BACKGROUND -->
+    <audio id="bg-music" loop autoplay>
         <source src="nhac_nen.mp3" type="audio/mp3">
     </audio>
     <div id="bg-overlay"></div>
-    <div id="firebase-status">Firebase Status: Connecting...</div>
+    <div id="firebase-status">Kết nối: Đang kiểm tra...</div>
 
+    <!-- Nút đã được chuyển lên góc trên trái -->
     <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
-        🔊 Bật/Tắt Nhạc
+        🔊 Nhạc
     </button>
 
     <div id="login-screen">
@@ -392,7 +403,7 @@
             <h1>Lì Xì 2026</h1>
             <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ</p>
             
-            <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError(); window.tryPlayMusic();">
+            <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
             <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">VD: Việt, Lan...</p>
             
             <p id="error-msg">⚠️ Tên này đã tham gia 2 lần rồi!<br>Vui lòng nhập tên khác</p>
@@ -431,45 +442,76 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         let firebaseConfig;
-        
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } else {
-            // CONFIG CHÍNH CHỦ CỦA BẠN
-            firebaseConfig = {
-                apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
-                authDomain: "tets-4bdc2.firebaseapp.com",
-                projectId: "tets-4bdc2",
-                storageBucket: "tets-4bdc2.firebasestorage.app",
-                messagingSenderId: "530765839954",
-                appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
-            };
-        }
-
         let app, db, auth, userId;
         let isFirebaseReady = false;
         let fullHistoryData = [];
+        
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } else {
+                firebaseConfig = {
+                    apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
+                    authDomain: "tets-4bdc2.firebaseapp.com",
+                    projectId: "tets-4bdc2",
+                    storageBucket: "tets-4bdc2.firebasestorage.app",
+                    messagingSenderId: "530765839954",
+                    appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
+                };
+            }
+            
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
 
+            const initAuth = async () => {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (err) {
+                    console.error("Auth failed:", err);
+                    loadFromLocalStorage();
+                }
+            };
+            initAuth();
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    isFirebaseReady = true;
+                    document.getElementById('firebase-status').innerText = "Trạng thái: Online";
+                    document.getElementById('firebase-status').style.color = "#81c784";
+                    listenToHistory();
+                }
+            });
+
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+            loadFromLocalStorage();
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history`;
         const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026';
         
         function loadFromLocalStorage() {
             const statusEl = document.getElementById('firebase-status');
-            statusEl.innerText = "Offline Mode";
+            statusEl.innerText = "Chế độ: Offline";
             statusEl.style.color = "orange";
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-            
             if (localData.length === 0) {
                 localData = [
                     { name: "Hệ Thống", prize: "Chế độ Offline" },
                     { name: "Demo User", prize: "50.000 VNĐ" }
                 ];
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
             }
-            
             fullHistoryData = localData;
             updateMarquee(localData);
         }
@@ -481,44 +523,6 @@
             fullHistoryData = localData;
             updateMarquee(localData);
         }
-
-        try {
-            if (firebaseConfig.apiKey !== "API_KEY_CUA_BAN") {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                     // Canvas logic
-                } else {
-                    signInAnonymously(auth).then(() => {
-                        console.log("Firebase Connected");
-                        document.getElementById('firebase-status').innerText = "Firebase: Connected";
-                        isFirebaseReady = true;
-                    }).catch((error) => {
-                        console.error("Firebase Auth Error:", error);
-                        loadFromLocalStorage();
-                    });
-                }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        isFirebaseReady = true;
-                        listenToHistory();
-                    }
-                });
-            } else {
-                loadFromLocalStorage();
-            }
-        } catch (e) {
-            console.error("Firebase Init Error:", e);
-            loadFromLocalStorage();
-        }
-
-        const COLLECTION_NAME = (typeof __app_id !== 'undefined') 
-            ? `artifacts/${__app_id}/public/data/lixi_history` 
-            : 'lixi_history';
 
         function listenToHistory() {
             if (!db) return;
@@ -535,9 +539,7 @@
                 
                 const recentWinners = historyData.slice(0, 50);
                 if (recentWinners.length === 0) {
-                    updateMarquee([
-                        { name: "Admin", prize: "Chưa có ai chơi, mở hàng đi!" }
-                    ]);
+                    updateMarquee([{ name: "Admin", prize: "Chưa có ai chơi, mở hàng đi!" }]);
                 } else {
                     updateMarquee(recentWinners);
                 }
@@ -559,7 +561,7 @@
         }
 
         window.saveResultToFirebase = async (name, prize) => {
-            if (db && isFirebaseReady) {
+            if (db && isFirebaseReady && userId) {
                 try {
                     await addDoc(collection(db, COLLECTION_NAME), {
                         name: name,
@@ -568,6 +570,7 @@
                         uid: userId
                     });
                 } catch (e) {
+                    console.error("Save Error:", e);
                     saveToLocalStorage(name, prize);
                 }
             } else {
@@ -575,13 +578,11 @@
             }
         };
 
-        // --- CẤU HÌNH RESPONSIVE ---
-        // Tự động kiểm tra kích thước màn hình để đặt số lượng bong bóng
+        // --- CẤU HÌNH RESPONSIVE & GAME ---
         const isMobile = window.innerWidth < 768;
-        const BUBBLE_COUNT = isMobile ? 8 : 18; // Mobile: 8 cái, PC: 18 cái cho xôm
-        const SPEED_BASE = isMobile ? 0.8 : 1.0; // Mobile bay chậm hơn xíu cho dễ bắt
+        const BUBBLE_COUNT = isMobile ? 8 : 18;
+        const SPEED_BASE = isMobile ? 0.8 : 1.0;
         
-        // Kích thước bong bóng (JS cần biết để tính toán va chạm)
         const bubbleWidth = isMobile ? 90 : 110; 
         const bubbleHeight = isMobile ? 160 : 200;
 
@@ -620,21 +621,34 @@
             if (e) e.stopPropagation();
             const music = document.getElementById('bg-music');
             if (music.paused) {
-                music.play();
+                music.play().catch(e => console.log("Audio requires interaction"));
                 musicStarted = true;
+                document.getElementById('btn-toggle-sound').innerHTML = "🔊 Nhạc: Bật";
             } else {
                 music.pause();
+                document.getElementById('btn-toggle-sound').innerHTML = "🔇 Nhạc: Tắt";
             }
         };
 
-        window.tryPlayMusic = () => {
+        // Hàm này sẽ cố gắng phát nhạc bất cứ khi nào có thể
+        window.forcePlayMusic = () => {
             if (musicStarted) return;
             const music = document.getElementById('bg-music');
             const video = document.getElementById('bg-video');
-            if (video.paused) video.play().catch(() => {});
-            music.play().then(() => {
-                musicStarted = true;
-            }).catch(() => {});
+            
+            // Cố phát video
+            if (video && video.paused) video.play().catch(() => {});
+            
+            // Cố phát nhạc
+            if (music) {
+                music.play().then(() => {
+                    musicStarted = true;
+                    // document.getElementById('btn-toggle-sound').innerHTML = "🔊 Nhạc: Bật";
+                }).catch((e) => {
+                    // Nếu trình duyệt chặn, không làm gì cả, chờ tương tác tiếp theo
+                    console.log("Autoplay blocked, waiting for interaction");
+                });
+            }
         };
 
         window.clearError = () => {
@@ -642,6 +656,8 @@
             const errorMsg = document.getElementById('error-msg');
             input.classList.remove('error');
             errorMsg.style.display = 'none';
+            // Khi người dùng gõ phím, coi như là tương tác -> Phát nhạc ngay
+            window.forcePlayMusic();
         }
 
         window.startGame = () => {
@@ -667,7 +683,7 @@
             userName = rawName;
             document.getElementById('display-name').innerText = userName;
             
-            window.tryPlayMusic();
+            window.forcePlayMusic(); // Đảm bảo nhạc chạy khi bấm Start
             document.getElementById('login-screen').classList.add('slide-up');
             initBubbles();
             animate();
@@ -686,7 +702,6 @@
                     this.el.innerHTML = `<div class="lx-en">${tpl.en}</div><div class="lx-vn">${tpl.vn}</div><div class="lx-icon">${tpl.icon}</div>`;
                 }
 
-                // Dùng kích thước động theo thiết bị
                 this.width = bubbleWidth;
                 this.height = bubbleHeight;
                 
@@ -778,13 +793,22 @@
             });
         });
         
+        // --- XỬ LÝ AUTO PLAY THÔNG MINH ---
         window.addEventListener('load', () => {
-             const v = document.getElementById('bg-video');
-             v.play().catch(()=>{});
-             window.tryPlayMusic();
-             document.body.addEventListener('click', function() {
-                 window.tryPlayMusic();
-             }, { once: true });
+             // 1. Thử phát ngay lập tức
+             window.forcePlayMusic();
+
+             // 2. Nếu thất bại (thường là vậy trên mobile), bắt sự kiện chạm đầu tiên
+             // Bất kỳ cú chạm nào vào màn hình (ví dụ bấm vào ô nhập tên) đều sẽ kích hoạt nhạc
+             const unlockAudio = () => {
+                 window.forcePlayMusic();
+                 // Sau khi đã kích hoạt, gỡ bỏ sự kiện này để không gọi lại
+                 document.removeEventListener('click', unlockAudio);
+                 document.removeEventListener('touchstart', unlockAudio);
+             };
+
+             document.addEventListener('click', unlockAudio);
+             document.addEventListener('touchstart', unlockAudio);
         });
     </script>
 </body>
