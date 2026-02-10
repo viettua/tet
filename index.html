@@ -23,7 +23,7 @@
             height: 100vh;
             overflow: hidden;
             user-select: none;
-            touch-action: none;
+            touch-action: none; /* Chặn zoom/kéo trên mobile */
         }
 
         /* --- GLOBAL BACKGROUND --- */
@@ -34,13 +34,13 @@
             width: auto; height: auto;
             transform: translate(-50%, -50%);
             z-index: -2;
-            object-fit: cover;
+            object-fit: cover; /* Quan trọng: Giúp video luôn full màn hình dù dọc hay ngang */
         }
 
         #bg-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.35); /* Tối hơn xíu để chữ dễ đọc trên mobile */
             z-index: -1;
             pointer-events: none;
         }
@@ -52,9 +52,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.2); 
+            background: rgba(0, 0, 0, 0.3); 
             z-index: 100;
             transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s;
+            padding: 20px; /* Đệm lề để không sát mép đt */
+            box-sizing: border-box;
         }
 
         #login-screen.slide-up {
@@ -65,15 +67,15 @@
 
         .login-card {
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
+            padding: 40px;
             border-radius: 25px;
             text-align: center;
-            width: 85%;
-            max-width: 380px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-            border: 3px solid var(--gold);
+            width: 100%;
+            max-width: 420px; /* Giới hạn chiều rộng trên PC */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--gold);
             position: relative;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             margin-bottom: 50px; 
         }
 
@@ -81,28 +83,31 @@
             font-family: 'Pacifico', cursive;
             color: var(--red-lixi);
             margin: 0 0 15px;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
         }
 
         .login-card input {
-            /* SỬA LỖI FONT: Ép dùng font Nunito cho ô nhập */
             font-family: 'Nunito', sans-serif;
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             margin-top: 15px;
             border: 2px solid #ddd;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 15px;
+            font-size: 1.1rem;
             text-align: center;
             outline: none;
             box-sizing: border-box;
             transition: all 0.3s;
             background: rgba(255,255,255,0.9);
         }
-        .login-card input:focus { border-color: var(--red-lixi); background: #fff; }
+        .login-card input:focus { 
+            border-color: var(--red-lixi); 
+            background: #fff; 
+            box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
+        }
         .login-card input.error { border-color: red; background: #fff0f0; }
 
-        /* Thông báo lỗi */
         #error-msg {
             color: #d32f2f;
             font-size: 0.9rem;
@@ -110,6 +115,9 @@
             font-weight: bold;
             display: none;
             animation: shake 0.5s;
+            background: #ffebee;
+            padding: 5px;
+            border-radius: 5px;
         }
 
         @keyframes shake {
@@ -121,41 +129,42 @@
         }
 
         .btn-confirm {
-            /* SỬA LỖI FONT: Ép dùng font Nunito và độ dày 900 */
             font-family: 'Nunito', sans-serif;
             background: linear-gradient(45deg, var(--red-lixi), #b71c1c);
             color: white;
             border: none;
-            padding: 12px 40px;
-            font-size: 1.2rem; /* Tăng cỡ chữ lên chút */
+            padding: 15px 40px;
+            font-size: 1.2rem;
             border-radius: 50px;
             cursor: pointer;
-            font-weight: 900; /* Dùng 900 (Black) thay vì 800 để khớp font đã tải */
+            font-weight: 900;
             margin-top: 25px;
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.5);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
             transition: transform 0.2s;
-            text-transform: uppercase; /* Viết hoa toàn bộ cho đẹp */
+            text-transform: uppercase;
             letter-spacing: 1px;
+            width: 100%; /* Nút to full chiều ngang trên mobile bấm cho dễ */
         }
         .btn-confirm:active { transform: scale(0.95); }
 
         /* --- DÒNG CHỮ CHẠY (MARQUEE) --- */
         .marquee-container {
             position: absolute;
-            bottom: 10%;
+            bottom: 5%; /* Cao hơn chút để tránh mép dưới điện thoại tai thỏ */
             left: 0;
             width: 100%;
-            height: 40px;
-            background: rgba(0, 0, 0, 0.7);
-            border-top: 1px solid var(--gold);
-            border-bottom: 1px solid var(--gold);
+            height: 45px;
+            background: rgba(183, 28, 28, 0.85); /* Nền đỏ đậm cho dễ đọc */
+            border-top: 2px solid var(--gold);
+            border-bottom: 2px solid var(--gold);
             overflow: hidden;
             display: flex;
             align-items: center;
             white-space: nowrap;
             color: #fff;
             font-family: 'Nunito', sans-serif;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .marquee-text {
@@ -184,22 +193,26 @@
             text-align: center;
             z-index: 10;
             pointer-events: none;
+            padding: 0 10px;
         }
         .header-pill {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 25px;
             border-radius: 50px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             font-weight: bold;
             color: var(--red-lixi);
             border: 2px solid var(--gold);
-            font-size: 1rem;
+            font-size: 1.1rem;
             backdrop-filter: blur(5px);
+            max-width: 90%; /* Để không bị tràn màn hình điện thoại */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         #btn-toggle-sound {
-            /* SỬA LỖI FONT cho nút nhạc luôn */
             font-family: 'Nunito', sans-serif;
             position: fixed;
             bottom: 20px;
@@ -208,14 +221,15 @@
             background: rgba(0,0,0,0.6);
             color: white;
             border: 1px solid rgba(255,255,255,0.5);
-            padding: 8px 12px;
+            padding: 10px 15px;
             border-radius: 50px;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 5px;
             transition: all 0.3s;
+            backdrop-filter: blur(5px);
         }
         #btn-toggle-sound:hover {
             background: var(--red-lixi);
@@ -223,36 +237,39 @@
         }
 
         /* --- STYLE BAO LÌ XÌ --- */
+        /* Mặc định cho PC */
         .lixi-bubble {
             position: absolute;
-            width: 100px;
-            height: 180px;
-            border-radius: 8px;
+            width: 110px; /* To hơn chút trên PC cho đẹp */
+            height: 200px;
+            border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
             will-change: transform;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 20px;
+            padding-top: 25px;
             box-sizing: border-box;
             user-select: none;
             z-index: 5;
             touch-action: manipulation;
+            border: 2px solid rgba(255,255,255,0.3);
         }
         
-        .lx-en { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-family: 'Nunito', sans-serif; opacity: 0.9; pointer-events: none; }
-        .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.2rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
-        .lx-icon { font-size: 2.5rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
+        .lx-en { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-family: 'Nunito', sans-serif; opacity: 0.9; pointer-events: none; }
+        .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.5rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
+        .lx-icon { font-size: 3rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
 
-        .style-yellow { background: #fbc02d; color: white; border: 2px solid #fff9c4; }
+        /* Style màu sắc */
+        .style-yellow { background: #fbc02d; color: white; border-color: #fff9c4; }
         .style-yellow .lx-vn { text-shadow: 2px 2px 0 #f57f17; }
-        .style-red-1 { background: #d32f2f; color: white; border: 2px solid #ffcdd2; }
-        .style-green { background: #81c784; color: white; border: 2px solid #c8e6c9; }
-        .style-red-2 { background: #b71c1c; color: white; border: 2px solid #e57373; }
-        .style-red-2 .lx-vn { font-size: 2rem; margin-top: 5px; margin-bottom: 0; }
-        .style-red-2 .lx-sub { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; pointer-events: none; }
+        .style-red-1 { background: #d32f2f; color: white; border-color: #ffcdd2; }
+        .style-green { background: #81c784; color: white; border-color: #c8e6c9; }
+        .style-red-2 { background: #b71c1c; color: white; border-color: #e57373; }
+        .style-red-2 .lx-vn { font-size: 2.2rem; margin-top: 5px; margin-bottom: 0; }
+        .style-red-2 .lx-sub { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; pointer-events: none; }
 
         .popped { animation: popOut 0.3s forwards; pointer-events: none; }
         @keyframes popOut {
@@ -265,8 +282,8 @@
         .result-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
             z-index: 200;
             display: flex;
             justify-content: center;
@@ -274,29 +291,31 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
+            padding: 20px;
         }
         .result-overlay.show { opacity: 1; pointer-events: auto; }
 
         .result-card {
             background: white;
-            padding: 30px;
-            border-radius: 20px;
+            padding: 40px 30px;
+            border-radius: 30px;
             text-align: center;
-            width: 85%;
-            max-width: 320px;
-            border: 4px solid var(--red-lixi);
+            width: 100%;
+            max-width: 400px;
+            border: 5px solid var(--red-lixi);
             transform: scale(0.5);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         .result-overlay.show .result-card { transform: scale(1); }
 
         .prize-amount {
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-size: 2rem;
+            font-weight: 900;
             color: var(--yellow-lixi);
-            margin: 15px 0;
-            text-shadow: 1px 1px 0 #d32f2f;
-            line-height: 1.2;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #d32f2f;
+            line-height: 1.3;
         }
 
         #firebase-status {
@@ -306,6 +325,49 @@
             color: rgba(255,255,255,0.7);
             z-index: 999;
             pointer-events: none;
+        }
+
+        /* === MEDIA QUERY CHO MOBILE (Màn hình dọc) === */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 30px 20px;
+                max-width: 95%; /* Chiếm gần hết chiều ngang */
+            }
+            .login-card h1 {
+                font-size: 2rem;
+            }
+            
+            /* Điều chỉnh kích thước bao lì xì nhỏ hơn trên mobile */
+            .lixi-bubble {
+                width: 90px;
+                height: 160px;
+                padding-top: 15px;
+            }
+            .lx-vn { font-size: 1.8rem; }
+            .lx-icon { font-size: 2.2rem; }
+            .lx-en { font-size: 0.6rem; }
+            
+            /* Nút nhạc nhỏ gọn hơn */
+            #btn-toggle-sound {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .marquee-container {
+                height: 40px;
+                font-size: 0.85rem;
+                bottom: 0; /* Dính đáy màn hình trên mobile */
+            }
+            
+            /* Modal kết quả trên mobile */
+            .result-card {
+                padding: 30px 20px;
+            }
+            .prize-amount {
+                font-size: 1.5rem; /* Chữ nhỏ lại xíu để không bị tràn */
+            }
         }
 
     </style>
@@ -360,7 +422,7 @@
             <div class="prize-amount" id="prize-amount">...</div>
             <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
             
-            <button class="btn-confirm" style="margin-top: 15px; padding: 10px 30px; font-size: 1rem;" onclick="location.reload()">
+            <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="location.reload()">
                 Cảm ơn Việt đẹp trai
             </button>
         </div>
@@ -376,7 +438,7 @@
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // !!! DÙNG CONFIG CỦA BẠN !!!
+            // CONFIG CHÍNH CHỦ CỦA BẠN
             firebaseConfig = {
                 apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
                 authDomain: "tets-4bdc2.firebaseapp.com",
@@ -395,7 +457,7 @@
         
         function loadFromLocalStorage() {
             const statusEl = document.getElementById('firebase-status');
-            statusEl.innerText = "Firebase Error. Using LocalStorage Mode.";
+            statusEl.innerText = "Offline Mode";
             statusEl.style.color = "orange";
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
@@ -447,7 +509,6 @@
                     }
                 });
             } else {
-                console.warn("Chưa thay config Firebase.");
                 loadFromLocalStorage();
             }
         } catch (e) {
@@ -507,7 +568,6 @@
                         uid: userId
                     });
                 } catch (e) {
-                    console.error("Save Error:", e);
                     saveToLocalStorage(name, prize);
                 }
             } else {
@@ -515,9 +575,16 @@
             }
         };
 
-        const BUBBLE_COUNT = 15; 
-        const SPEED_BASE = 1.0; 
+        // --- CẤU HÌNH RESPONSIVE ---
+        // Tự động kiểm tra kích thước màn hình để đặt số lượng bong bóng
+        const isMobile = window.innerWidth < 768;
+        const BUBBLE_COUNT = isMobile ? 8 : 18; // Mobile: 8 cái, PC: 18 cái cho xôm
+        const SPEED_BASE = isMobile ? 0.8 : 1.0; // Mobile bay chậm hơn xíu cho dễ bắt
         
+        // Kích thước bong bóng (JS cần biết để tính toán va chạm)
+        const bubbleWidth = isMobile ? 90 : 110; 
+        const bubbleHeight = isMobile ? 160 : 200;
+
         const templates = [
             { class: 'style-yellow', en: 'SAY HI', vn: 'Tết', icon: '👫' },
             { class: 'style-red-1', en: 'EM CHÀO', vn: 'Tết', icon: '💃' },
@@ -619,8 +686,10 @@
                     this.el.innerHTML = `<div class="lx-en">${tpl.en}</div><div class="lx-vn">${tpl.vn}</div><div class="lx-icon">${tpl.icon}</div>`;
                 }
 
-                this.width = 100;
-                this.height = 180;
+                // Dùng kích thước động theo thiết bị
+                this.width = bubbleWidth;
+                this.height = bubbleHeight;
+                
                 this.x = Math.random() * (window.innerWidth - this.width);
                 this.y = Math.random() * (window.innerHeight - this.height);
                 
