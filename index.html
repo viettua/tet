@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Săn Lì Xì Bong Bóng 2026 (Online)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Pacifico&display=swap');
+
+        :root {
+            --bg-cream: #fff8e1;
+            --red-lixi: #d32f2f;
+            --yellow-lixi: #fbc02d;
+            --green-lixi: #81c784;
+            --gold: #ffd700;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #3e0a0a;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* --- GLOBAL BACKGROUND --- */
+        #bg-video {
+            position: fixed;
+            top: 50%; left: 50%;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
+            transform: translate(-50%, -50%);
+            z-index: -2;
+            object-fit: cover;
+        }
+
+        #bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- Màn hình 1: Nhập tên --- */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2); 
+            z-index: 100;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s;
+        }
+
+        #login-screen.slide-up {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            width: 85%;
+            max-width: 380px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--gold);
+            position: relative;
+            backdrop-filter: blur(5px);
+            margin-bottom: 50px; 
+        }
+
+        .login-card h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--red-lixi);
+            margin: 0 0 15px;
+            font-size: 2.2rem;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.9);
+        }
+        .login-card input:focus { border-color: var(--red-lixi); background: #fff; }
+        .login-card input.error { border-color: red; background: #fff0f0; }
+
+        /* Thông báo lỗi */
+        #error-msg {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none; /* Ẩn mặc định */
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .btn-confirm {
+            background: linear-gradient(45deg, var(--red-lixi), #b71c1c);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.5);
+            transition: transform 0.2s;
+        }
+        .btn-confirm:active { transform: scale(0.95); }
+
+        /* --- DÒNG CHỮ CHẠY (MARQUEE) --- */
+        .marquee-container {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.7);
+            border-top: 1px solid var(--gold);
+            border-bottom: 1px solid var(--gold);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            color: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll 20s linear infinite;
+            font-weight: bold;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- Màn hình 2: Game Screen --- */
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header-info {
+            position: absolute;
+            top: 20px; left: 0; right: 0;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .header-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
+            color: var(--red-lixi);
+            border: 2px solid var(--gold);
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        #btn-toggle-sound {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 8px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        #btn-toggle-sound:hover {
+            background: var(--red-lixi);
+            transform: scale(1.05);
+        }
+
+        /* --- STYLE BAO LÌ XÌ --- */
+        .lixi-bubble {
+            position: absolute;
+            width: 100px;
+            height: 180px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            will-change: transform;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 20px;
+            box-sizing: border-box;
+            user-select: none;
+            z-index: 5;
+            touch-action: manipulation;
+        }
+        
+        .lx-en { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-family: 'Nunito', sans-serif; opacity: 0.9; pointer-events: none; }
+        .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.2rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
+        .lx-icon { font-size: 2.5rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
+
+        .style-yellow { background: #fbc02d; color: white; border: 2px solid #fff9c4; }
+        .style-yellow .lx-vn { text-shadow: 2px 2px 0 #f57f17; }
+        .style-red-1 { background: #d32f2f; color: white; border: 2px solid #ffcdd2; }
+        .style-green { background: #81c784; color: white; border: 2px solid #c8e6c9; }
+        .style-red-2 { background: #b71c1c; color: white; border: 2px solid #e57373; }
+        .style-red-2 .lx-vn { font-size: 2rem; margin-top: 5px; margin-bottom: 0; }
+        .style-red-2 .lx-sub { font-size: 0.8rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; pointer-events: none; }
+
+        .popped { animation: popOut 0.3s forwards; pointer-events: none; }
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* --- Modal Kết quả --- */
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .result-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .result-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            border: 4px solid var(--red-lixi);
+            transform: scale(0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .result-overlay.show .result-card { transform: scale(1); }
+
+        .prize-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--yellow-lixi);
+            margin: 15px 0;
+            text-shadow: 1px 1px 0 #d32f2f;
+            line-height: 1.2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- VIDEO & AUDIO NỀN -->
+    <video id="bg-video" autoplay muted loop playsinline>
+        <source src="video_nen.mp4" type="video/mp4">
+    </video>
+    <audio id="bg-music" autoplay loop>
+        <source src="nhac_nen.mp3" type="audio/mp3">
+    </audio>
+    <div id="bg-overlay"></div>
+
+    <!-- Nút bật/tắt nhạc -->
+    <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
+        🔊 Bật/Tắt Nhạc
+    </button>
+
+    <!-- Màn hình nhập tên -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>Lì Xì 2026</h1>
+            <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ</p>
+            
+            <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError(); window.tryPlayMusic();">
+            <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">VD: Việt, Lan...</p>
+            
+            <!-- Khu vực hiển thị lỗi -->
+            <p id="error-msg">⚠️ Tên này đã tham gia 2 lần rồi!<br>Vui lòng nhập tên khác (VD: Nguyễn Lan)</p>
+            
+            <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
+        </div>
+
+        <!-- Dòng chữ chạy (Kết quả Online) -->
+        <div class="marquee-container">
+            <div class="marquee-text" id="history-text">
+                Đang tải danh sách người trúng thưởng...
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình Game -->
+    <div id="game-container">
+        <div class="header-info">
+            <div class="header-pill">
+                Chào <span id="display-name">...</span>, chạm vào lì xì để bắt nhé!
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Kết quả -->
+    <div class="result-overlay" id="result-modal">
+        <div class="result-card">
+            <h2 style="color: var(--red-lixi); margin:0;">🎉 Chúc Mừng 🎉</h2>
+            <p style="margin: 10px 0; color: #555;">Bạn <b id="winner-name"></b> đã nhận được:</p>
+            <div class="prize-amount" id="prize-amount">...</div>
+            <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
+            <!-- Nút bấm đã được đổi theo yêu cầu -->
+            <button class="btn-confirm" style="margin-top: 15px; padding: 10px 30px; font-size: 1rem;" onclick="location.reload()">
+                Cảm ơn Việt đẹp trai
+            </button>
+        </div>
+    </div>
+
+    <!-- SCRIPT FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // === THAY CONFIG CỦA BẠN KHI UP GITHUB ===
+            firebaseConfig = {
+                apiKey: "API_KEY_CUA_BAN",
+                authDomain: "PROJECT_ID.firebaseapp.com",
+                projectId: "PROJECT_ID",
+                storageBucket: "PROJECT_ID.firebasestorage.app",
+                messagingSenderId: "SENDER_ID",
+                appId: "APP_ID"
+            };
+            // ========================================
+        }
+
+        let app, db, auth, userId;
+        let isFirebaseReady = false;
+        let fullHistoryData = [];
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                 // Logic dành riêng cho môi trường Canvas
+            } else {
+                signInAnonymously(auth).then(() => {
+                    console.log("Đã kết nối Firebase thành công!");
+                    isFirebaseReady = true;
+                }).catch((error) => {
+                    console.error("Lỗi đăng nhập Firebase:", error);
+                });
+            }
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    isFirebaseReady = true;
+                    listenToHistory();
+                }
+            });
+            
+        } catch (e) {
+            console.error("Chưa cấu hình Firebase đúng cách.", e);
+        }
+
+        const COLLECTION_NAME = (typeof __app_id !== 'undefined') 
+            ? `artifacts/${__app_id}/public/data/lixi_history` 
+            : 'lixi_history';
+
+        function listenToHistory() {
+            if (!db) return;
+            const q = collection(db, COLLECTION_NAME);
+            
+            onSnapshot(q, (snapshot) => {
+                const historyData = [];
+                snapshot.forEach((doc) => {
+                    historyData.push(doc.data());
+                });
+                
+                fullHistoryData = historyData;
+                historyData.sort((a, b) => b.timestamp - a.timestamp);
+                
+                const recentWinners = historyData.slice(0, 50);
+                if (recentWinners.length === 0) {
+                    updateMarquee([
+                        { name: "Admin", prize: "Chúc mừng năm mới!" },
+                        { name: "Bot Chạy Thử", prize: "Cái nịt" }
+                    ]);
+                } else {
+                    updateMarquee(recentWinners);
+                }
+            }, (error) => {
+                updateMarquee([
+                     { name: "Hệ thống", prize: "Chào mừng bạn tham gia!" }
+                ]);
+            });
+        }
+
+        function updateMarquee(data) {
+            const textElement = document.getElementById('history-text');
+            if (!textElement) return;
+
+            const textContent = data.map(item => 
+                `<span style="color:#ffd700">★</span> <b>${item.name}</b>: ${item.prize}`
+            ).join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+            
+            textElement.innerHTML = textContent;
+        }
+
+        window.saveResultToFirebase = async (name, prize) => {
+            if (!db || !isFirebaseReady) return;
+            try {
+                await addDoc(collection(db, COLLECTION_NAME), {
+                    name: name,
+                    prize: prize,
+                    timestamp: Date.now(),
+                    uid: userId
+                });
+            } catch (e) {
+                console.error("Lỗi khi lưu kết quả:", e);
+            }
+        };
+
+        const BUBBLE_COUNT = 15; 
+        const SPEED_BASE = 1.0; 
+        
+        const templates = [
+            { class: 'style-yellow', en: 'SAY HI', vn: 'Tết', icon: '👫' },
+            { class: 'style-red-1', en: 'EM CHÀO', vn: 'Tết', icon: '💃' },
+            { class: 'style-green', en: 'HAPPY', vn: 'Tết', icon: '👦' },
+            { class: 'style-red-2', en: 'ĐỦ ĐẦY', vn: 'Tết', icon: '🐴', isSub: true },
+            { class: 'style-red-2', en: 'TÀI LỘC', vn: 'Tết', icon: '💰', isSub: true },
+            { class: 'style-red-2', en: 'HẠNH PHÚC', vn: 'Tết', icon: '🥰', isSub: true }
+        ];
+
+        // DANH SÁCH QUÀ "CÀ KHỊA" CHO NGƯỜI THƯỜNG
+        const prizes = [
+            "Cái nịt (Limited Edition) 🎀",
+            "Một tràng pháo tay 👏",
+            "Chúc bạn bớt ngáo đá 🤪",
+            "Tết này vẫn giống Tết xưa, vẫn đi xe số vẫn thừa ghế sau 🏍️",
+            "1.000 VNĐ (Tượng trưng) 💸",
+            "Một nụ cười tỏa nắng 😁",
+            "Vé số chiều xổ (chưa mua) 🎟️",
+            "Chúc bạn sớm có người yêu (trong mơ) 😴",
+            "Lì xì bằng niềm tin ✨",
+            "500 anh em 👨‍👨‍👦‍👦",
+            "Không có gì ngoài tấm lòng ❤️",
+            "Sự đẹp trai của Admin 😎",
+            "Chúc bạn may mắn lần sau... mà chắc không có lần sau đâu! 😂"
+        ];
+
+        let userName = "";
+        let animationFrameId;
+        const bubbles = []; 
+        let isGameOver = false;
+        let musicStarted = false;
+
+        window.toggleSound = (e) => {
+            if (e) e.stopPropagation();
+            const music = document.getElementById('bg-music');
+            if (music.paused) {
+                music.play();
+                musicStarted = true;
+            } else {
+                music.pause();
+            }
+        };
+
+        window.tryPlayMusic = () => {
+            if (musicStarted) return;
+            const music = document.getElementById('bg-music');
+            const video = document.getElementById('bg-video');
+            if (video.paused) video.play().catch(() => {});
+            music.play().then(() => {
+                musicStarted = true;
+            }).catch(() => {});
+        };
+
+        window.clearError = () => {
+            const input = document.getElementById('username');
+            const errorMsg = document.getElementById('error-msg');
+            input.classList.remove('error');
+            errorMsg.style.display = 'none';
+        }
+
+        window.startGame = () => {
+            const input = document.getElementById('username');
+            const errorMsg = document.getElementById('error-msg');
+            const rawName = input.value.trim();
+
+            if (!rawName) {
+                input.classList.add('error');
+                input.focus();
+                return;
+            }
+
+            const playCount = fullHistoryData.filter(p => p.name.toLowerCase() === rawName.toLowerCase()).length;
+
+            if (playCount >= 2) {
+                input.classList.add('error');
+                errorMsg.innerHTML = `⚠️ Tên "<b>${rawName}</b>" đã tham gia 2 lần rồi!<br>Vui lòng nhập thêm họ/đệm (VD: Nguyễn ${rawName})`;
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            userName = rawName;
+            document.getElementById('display-name').innerText = userName;
+            
+            window.tryPlayMusic();
+            document.getElementById('login-screen').classList.add('slide-up');
+            initBubbles();
+            animate();
+        };
+
+        class Bubble {
+            constructor() {
+                this.el = document.createElement('div');
+                this.el.className = 'lixi-bubble';
+                const tpl = templates[Math.floor(Math.random() * templates.length)];
+                this.el.classList.add(tpl.class);
+                
+                if (tpl.isSub) {
+                    this.el.innerHTML = `<div class="lx-vn">${tpl.vn}</div><div class="lx-sub">${tpl.en}</div><div class="lx-icon">${tpl.icon}</div>`;
+                } else {
+                    this.el.innerHTML = `<div class="lx-en">${tpl.en}</div><div class="lx-vn">${tpl.vn}</div><div class="lx-icon">${tpl.icon}</div>`;
+                }
+
+                this.width = 100;
+                this.height = 180;
+                this.x = Math.random() * (window.innerWidth - this.width);
+                this.y = Math.random() * (window.innerHeight - this.height);
+                
+                const dirX = Math.random() < 0.5 ? -1 : 1;
+                const dirY = Math.random() < 0.5 ? -1 : 1;
+                this.vx = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirX;
+                this.vy = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirY;
+
+                this.el.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation(); 
+                    if (!isGameOver) {
+                        this.pop();
+                    }
+                });
+
+                document.getElementById('game-container').appendChild(this.el);
+                this.updatePosition(); 
+            }
+
+            update() {
+                if (isGameOver) return;
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x <= 0 || this.x + this.width >= window.innerWidth) {
+                    this.vx *= -1;
+                    this.x = Math.max(0, Math.min(this.x, window.innerWidth - this.width));
+                }
+                if (this.y <= 0 || this.y + this.height >= window.innerHeight) {
+                    this.vy *= -1;
+                    this.y = Math.max(0, Math.min(this.y, window.innerHeight - this.height));
+                }
+                this.updatePosition();
+            }
+
+            updatePosition() {
+                this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+            }
+
+            pop() {
+                isGameOver = true;
+                cancelAnimationFrame(animationFrameId); 
+                this.el.classList.add('popped'); 
+                
+                let prize;
+                const n = userName.toLowerCase();
+
+                // 1. Nhóm 5k (Check trước)
+                if (n.includes('quang') || n.includes('hải') || n.includes('hoàng') || n.includes('đạt')) {
+                    prize = "5.000 VNĐ";
+                } 
+                // 2. Nhóm 100k
+                else if (n.includes('hoàn')) {
+                    prize = "100.000 VNĐ";
+                } 
+                // 3. Còn lại: Random "cà khịa"
+                else {
+                    prize = prizes[Math.floor(Math.random() * prizes.length)];
+                }
+                
+                if (window.saveResultToFirebase) {
+                    window.saveResultToFirebase(userName, prize);
+                }
+
+                setTimeout(() => {
+                    document.getElementById('winner-name').innerText = userName;
+                    document.getElementById('prize-amount').innerText = prize;
+                    document.getElementById('result-modal').classList.add('show');
+                }, 300);
+            }
+        }
+
+        function initBubbles() {
+            for (let i = 0; i < BUBBLE_COUNT; i++) {
+                bubbles.push(new Bubble());
+            }
+        }
+
+        function animate() {
+            if (isGameOver) return;
+            bubbles.forEach(b => b.update());
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            bubbles.forEach(b => {
+                b.x = Math.min(b.x, window.innerWidth - b.width);
+                b.y = Math.min(b.y, window.innerHeight - b.height);
+                b.updatePosition();
+            });
+        });
+        
+        window.addEventListener('load', () => {
+             const v = document.getElementById('bg-video');
+             v.play().catch(()=>{});
+             window.tryPlayMusic();
+             document.body.addEventListener('click', function() {
+                 window.tryPlayMusic();
+             }, { once: true });
+        });
+    </script>
+</body>
+</html>
