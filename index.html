@@ -328,6 +328,39 @@
             line-height: 1.3;
         }
 
+        /* --- Màn hình Cảm Ơn (Thay vì chuyển trang) --- */
+        #thank-you-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.9);
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+        #thank-you-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #thank-you-screen h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+        #thank-you-screen p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
         #firebase-status {
             position: absolute;
             top: 5px; right: 5px; /* Chuyển sang phải cho đỡ vướng nút nhạc */
@@ -406,7 +439,7 @@
             <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
             <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">VD: Việt, Lan...</p>
             
-            <p id="error-msg">⚠️ Tên này đã tham gia 2 lần rồi!<br>Vui lòng nhập tên khác</p>
+            <p id="error-msg"></p>
             
             <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
         </div>
@@ -433,11 +466,20 @@
             <div class="prize-amount" id="prize-amount">...</div>
             <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
             
-            <!-- Đã sửa: Chuyển hướng sang cam_on.html -->
-            <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="window.location.href='cam_on.html'">
+            <!-- Sửa: Gọi hàm showThankYou thay vì chuyển trang -->
+            <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="window.showThankYou()">
                 Cảm ơn Việt đẹp trai
             </button>
         </div>
+    </div>
+
+    <!-- Màn hình cảm ơn (Overlay) -->
+    <div id="thank-you-screen">
+        <h1>Cảm Ơn Bạn!</h1>
+        <p>Chúc bạn một năm mới An Khang Thịnh Vượng, Vạn Sự Như Ý.</p>
+        <p>🎉 Happy New Year 2026 🎉</p>
+        <br>
+        <button class="btn-confirm" style="width: auto; padding: 10px 30px;" onclick="location.reload()">Chơi Lại</button>
     </div>
 
     <script type="module">
@@ -631,22 +673,15 @@
             }
         };
 
-        // Hàm này sẽ cố gắng phát nhạc bất cứ khi nào có thể
         window.forcePlayMusic = () => {
             if (musicStarted) return;
             const music = document.getElementById('bg-music');
             const video = document.getElementById('bg-video');
-            
-            // Cố phát video
             if (video && video.paused) video.play().catch(() => {});
-            
-            // Cố phát nhạc
             if (music) {
                 music.play().then(() => {
                     musicStarted = true;
-                    // document.getElementById('btn-toggle-sound').innerHTML = "🔊 Nhạc: Bật";
                 }).catch((e) => {
-                    // Nếu trình duyệt chặn, không làm gì cả, chờ tương tác tiếp theo
                     console.log("Autoplay blocked, waiting for interaction");
                 });
             }
@@ -657,8 +692,16 @@
             const errorMsg = document.getElementById('error-msg');
             input.classList.remove('error');
             errorMsg.style.display = 'none';
-            // Khi người dùng gõ phím, coi như là tương tác -> Phát nhạc ngay
             window.forcePlayMusic();
+        }
+
+        // --- HÀM KIỂM TRA TÊN HỢP LỆ ---
+        function isValidVietnameseName(name) {
+            // Chỉ cho phép chữ cái tiếng Việt, tiếng Anh và khoảng trắng
+            // Không cho phép số hoặc ký tự đặc biệt
+            // Độ dài ít nhất 2 ký tự
+            const regex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]{2,50}$/;
+            return regex.test(name);
         }
 
         window.startGame = () => {
@@ -666,9 +709,18 @@
             const errorMsg = document.getElementById('error-msg');
             const rawName = input.value.trim();
 
+            // Kiểm tra rỗng
             if (!rawName) {
                 input.classList.add('error');
                 input.focus();
+                return;
+            }
+
+            // Kiểm tra tên hợp lệ (Tiếng Việt, ko ký tự lạ)
+            if (!isValidVietnameseName(rawName)) {
+                input.classList.add('error');
+                errorMsg.innerHTML = `⚠️ Tên không hợp lệ!<br>Vui lòng nhập tên thật, không dùng số hoặc ký tự lạ.`;
+                errorMsg.style.display = 'block';
                 return;
             }
 
@@ -684,10 +736,24 @@
             userName = rawName;
             document.getElementById('display-name').innerText = userName;
             
-            window.forcePlayMusic(); // Đảm bảo nhạc chạy khi bấm Start
+            window.forcePlayMusic(); 
             document.getElementById('login-screen').classList.add('slide-up');
             initBubbles();
             animate();
+        };
+
+        // Hàm hiển thị màn hình Cảm Ơn (Overlay)
+        window.showThankYou = () => {
+            const resultModal = document.getElementById('result-modal');
+            const thankYouScreen = document.getElementById('thank-you-screen');
+            
+            // Ẩn modal kết quả
+            resultModal.classList.remove('show');
+            
+            // Hiện màn hình cảm ơn
+            setTimeout(() => {
+                thankYouScreen.classList.add('visible');
+            }, 300);
         };
 
         class Bubble {
@@ -794,20 +860,13 @@
             });
         });
         
-        // --- XỬ LÝ AUTO PLAY THÔNG MINH ---
         window.addEventListener('load', () => {
-             // 1. Thử phát ngay lập tức
              window.forcePlayMusic();
-
-             // 2. Nếu thất bại (thường là vậy trên mobile), bắt sự kiện chạm đầu tiên
-             // Bất kỳ cú chạm nào vào màn hình (ví dụ bấm vào ô nhập tên) đều sẽ kích hoạt nhạc
              const unlockAudio = () => {
                  window.forcePlayMusic();
-                 // Sau khi đã kích hoạt, gỡ bỏ sự kiện này để không gọi lại
                  document.removeEventListener('click', unlockAudio);
                  document.removeEventListener('touchstart', unlockAudio);
              };
-
              document.addEventListener('click', unlockAudio);
              document.addEventListener('touchstart', unlockAudio);
         });
