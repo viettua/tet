@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Săn Lì Xì Bong Bóng 2026 (Online)</title>
+    <title>Săn Lì Xì 2026 (Online)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Pacifico&display=swap');
 
@@ -106,7 +106,7 @@
             font-size: 0.9rem;
             margin-top: 10px;
             font-weight: bold;
-            display: none; /* Ẩn mặc định */
+            display: none;
             animation: shake 0.5s;
         }
 
@@ -291,6 +291,16 @@
             line-height: 1.2;
         }
 
+        /* Hiển thị lỗi Firebase góc màn hình để debug */
+        #firebase-status {
+            position: absolute;
+            top: 5px; left: 5px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            z-index: 999;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 <body>
@@ -303,6 +313,7 @@
         <source src="nhac_nen.mp3" type="audio/mp3">
     </audio>
     <div id="bg-overlay"></div>
+    <div id="firebase-status">Firebase Status: Connecting...</div>
 
     <!-- Nút bật/tắt nhạc -->
     <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
@@ -318,8 +329,7 @@
             <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError(); window.tryPlayMusic();">
             <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">VD: Việt, Lan...</p>
             
-            <!-- Khu vực hiển thị lỗi -->
-            <p id="error-msg">⚠️ Tên này đã tham gia 2 lần rồi!<br>Vui lòng nhập tên khác (VD: Nguyễn Lan)</p>
+            <p id="error-msg">⚠️ Tên này đã tham gia 2 lần rồi!<br>Vui lòng nhập tên khác</p>
             
             <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
         </div>
@@ -348,65 +358,108 @@
             <p style="margin: 10px 0; color: #555;">Bạn <b id="winner-name"></b> đã nhận được:</p>
             <div class="prize-amount" id="prize-amount">...</div>
             <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
-            <!-- Nút bấm đã được đổi theo yêu cầu -->
+            
             <button class="btn-confirm" style="margin-top: 15px; padding: 10px 30px; font-size: 1rem;" onclick="location.reload()">
                 Cảm ơn Việt đẹp trai
             </button>
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
+    <!-- SCRIPT FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+        // --- CẤU HÌNH FIREBASE (DÁN CONFIG CỦA BẠN VÀO ĐÂY) ---
         let firebaseConfig;
+        
+        // KIỂM TRA XEM CÓ BIẾN MÔI TRƯỜNG KHÔNG (CHO CANVAS)
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // === THAY CONFIG CỦA BẠN KHI UP GITHUB ===
+            // !!! BẠN HÃY DÁN CONFIG THẬT CỦA BẠN VÀO GIỮA 2 DẤU NGOẶC DƯỚI ĐÂY !!!
+            // Nếu vẫn để nguyên "API_KEY_CUA_BAN", nó sẽ chạy chế độ Offline (LocalStorage)
             firebaseConfig = {
                 apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
-  authDomain: "tets-4bdc2.firebaseapp.com",
-  projectId: "tets-4bdc2",
-  storageBucket: "tets-4bdc2.firebasestorage.app",
-  messagingSenderId: "530765839954",
-  appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
+                authDomain: "tets-4bdc2.firebaseapp.com",
+                projectId: "tets-4bdc2",
+                storageBucket: "tets-4bdc2.firebasestorage.app",
+                messagingSenderId: "530765839954",
+                appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
             };
-            // ========================================
         }
 
         let app, db, auth, userId;
         let isFirebaseReady = false;
         let fullHistoryData = [];
 
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+        // --- CƠ CHẾ DỰ PHÒNG LOCALSTORAGE (OFFLINE MODE) ---
+        const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026';
+        
+        function loadFromLocalStorage() {
+            const statusEl = document.getElementById('firebase-status');
+            statusEl.innerText = "Firebase Error. Using LocalStorage Mode.";
+            statusEl.style.color = "orange";
             
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                 // Logic dành riêng cho môi trường Canvas
-            } else {
-                signInAnonymously(auth).then(() => {
-                    console.log("Đã kết nối Firebase thành công!");
-                    isFirebaseReady = true;
-                }).catch((error) => {
-                    console.error("Lỗi đăng nhập Firebase:", error);
-                });
+            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            
+            // Nếu chưa có dữ liệu, tạo dữ liệu giả cho đẹp
+            if (localData.length === 0) {
+                localData = [
+                    { name: "Hệ Thống", prize: "Chế độ Offline" },
+                    { name: "Demo User", prize: "50.000 VNĐ" }
+                ];
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
             }
             
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    isFirebaseReady = true;
-                    listenToHistory();
+            fullHistoryData = localData;
+            updateMarquee(localData);
+        }
+
+        function saveToLocalStorage(name, prize) {
+            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            localData.unshift({ name, prize, timestamp: Date.now() });
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
+            fullHistoryData = localData;
+            updateMarquee(localData);
+        }
+
+        // --- KẾT NỐI FIREBASE ---
+        try {
+            // Chỉ kết nối nếu config không phải là config mẫu
+            if (firebaseConfig.apiKey !== "API_KEY_CUA_BAN") {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                     // Canvas Auth (Bỏ qua)
+                } else {
+                    signInAnonymously(auth).then(() => {
+                        console.log("Firebase Connected via Anonymous Auth");
+                        document.getElementById('firebase-status').innerText = "Firebase: Connected";
+                        isFirebaseReady = true;
+                    }).catch((error) => {
+                        console.error("Firebase Auth Error:", error);
+                        loadFromLocalStorage(); // Fallback
+                    });
                 }
-            });
-            
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isFirebaseReady = true;
+                        listenToHistory();
+                    }
+                });
+            } else {
+                console.warn("Chưa thay config Firebase. Chuyển sang chế độ LocalStorage.");
+                loadFromLocalStorage();
+            }
         } catch (e) {
-            console.error("Chưa cấu hình Firebase đúng cách.", e);
+            console.error("Firebase Init Error:", e);
+            loadFromLocalStorage();
         }
 
         const COLLECTION_NAME = (typeof __app_id !== 'undefined') 
@@ -429,16 +482,15 @@
                 const recentWinners = historyData.slice(0, 50);
                 if (recentWinners.length === 0) {
                     updateMarquee([
-                        { name: "Admin", prize: "Chúc mừng năm mới!" },
-                        { name: "Bot Chạy Thử", prize: "Cái nịt" }
+                        { name: "Admin", prize: "Chưa có ai chơi, mở hàng đi!" }
                     ]);
                 } else {
                     updateMarquee(recentWinners);
                 }
             }, (error) => {
-                updateMarquee([
-                     { name: "Hệ thống", prize: "Chào mừng bạn tham gia!" }
-                ]);
+                console.error("Firestore Error (Check Rules):", error);
+                // Nếu lỗi quyền truy cập (Permission Denied) -> Chuyển sang LocalStorage
+                loadFromLocalStorage();
             });
         }
 
@@ -454,19 +506,28 @@
         }
 
         window.saveResultToFirebase = async (name, prize) => {
-            if (!db || !isFirebaseReady) return;
-            try {
-                await addDoc(collection(db, COLLECTION_NAME), {
-                    name: name,
-                    prize: prize,
-                    timestamp: Date.now(),
-                    uid: userId
-                });
-            } catch (e) {
-                console.error("Lỗi khi lưu kết quả:", e);
+            // Nếu Firebase sẵn sàng thì lưu lên mây
+            if (db && isFirebaseReady) {
+                try {
+                    await addDoc(collection(db, COLLECTION_NAME), {
+                        name: name,
+                        prize: prize,
+                        timestamp: Date.now(),
+                        uid: userId
+                    });
+                    console.log("Saved to Firebase");
+                } catch (e) {
+                    console.error("Save Error:", e);
+                    // Nếu lỗi lưu (ví dụ mạng lag), lưu tạm vào LocalStorage để không mất
+                    saveToLocalStorage(name, prize);
+                }
+            } else {
+                // Nếu đang chạy chế độ offline -> Lưu LocalStorage
+                saveToLocalStorage(name, prize);
             }
         };
 
+        // --- LOGIC GAME ---
         const BUBBLE_COUNT = 15; 
         const SPEED_BASE = 1.0; 
         
@@ -541,6 +602,7 @@
                 return;
             }
 
+            // Kiểm tra trùng tên (Lấy từ fullHistoryData dù là online hay offline)
             const playCount = fullHistoryData.filter(p => p.name.toLowerCase() === rawName.toLowerCase()).length;
 
             if (playCount >= 2) {
@@ -620,19 +682,18 @@
                 let prize;
                 const n = userName.toLowerCase();
 
-                // 1. Nhóm 5k (Check trước)
+                // Logic chia quà
                 if (n.includes('quang') || n.includes('hải') || n.includes('hoàng') || n.includes('đạt')) {
                     prize = "5.000 VNĐ";
                 } 
-                // 2. Nhóm 100k
                 else if (n.includes('hoàn')) {
                     prize = "100.000 VNĐ";
                 } 
-                // 3. Còn lại: Random "cà khịa"
                 else {
                     prize = prizes[Math.floor(Math.random() * prizes.length)];
                 }
                 
+                // Gọi hàm lưu (tự động chọn Firebase hoặc LocalStorage)
                 if (window.saveResultToFirebase) {
                     window.saveResultToFirebase(userName, prize);
                 }
@@ -675,5 +736,4 @@
         });
     </script>
 </body>
-
 </html>
