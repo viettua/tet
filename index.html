@@ -410,6 +410,418 @@
             .prize-amount {
                 font-size: 1.5rem;
             }
+        }<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Săn Lì Xì 2026 (Online)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Pacifico&display=swap');
+
+        :root {
+            --bg-cream: #fff8e1;
+            --red-lixi: #d32f2f;
+            --yellow-lixi: #fbc02d;
+            --green-lixi: #81c784;
+            --gold: #ffd700;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: #3e0a0a;
+            background: linear-gradient(135deg, #3e0a0a 0%, #7f0000 100%);
+            height: 100vh;
+            /* Hỗ trợ tính chiều cao full trên mobile (tránh thanh address bar che) */
+            height: 100dvh; 
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        /* --- GLOBAL BACKGROUND --- */
+        #bg-video {
+            position: fixed;
+            top: 50%; left: 50%;
+            min-width: 100%; min-height: 100%;
+            width: auto; height: auto;
+            transform: translate(-50%, -50%);
+            z-index: -2;
+            object-fit: cover;
+        }
+
+        #bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.35);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- Màn hình 1: Nhập tên --- */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3); 
+            z-index: 100;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #login-screen.slide-up {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--gold);
+            position: relative;
+            backdrop-filter: blur(10px);
+            margin-bottom: 80px; /* Đẩy lên cao hơn để không đè vào marquee */
+        }
+
+        .login-card h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--red-lixi);
+            margin: 0 0 15px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .login-card input {
+            font-family: 'Nunito', sans-serif;
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.9);
+        }
+        .login-card input:focus { 
+            border-color: var(--red-lixi); 
+            background: #fff; 
+            box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
+        }
+        .login-card input.error { border-color: red; background: #fff0f0; }
+
+        #error-msg {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+            animation: shake 0.5s;
+            background: #ffebee;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .btn-confirm {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(45deg, var(--red-lixi), #b71c1c);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 900;
+            margin-top: 25px;
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+        .btn-confirm:active { transform: scale(0.95); }
+
+        /* --- DÒNG CHỮ CHẠY (MARQUEE) --- */
+        .marquee-container {
+            position: absolute;
+            /* Đặt cố định ở đáy, dùng padding-bottom để tránh tai thỏ/home bar */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px; /* Tăng chiều cao xíu */
+            background: rgba(183, 28, 28, 0.95); /* Đậm hơn cho dễ đọc */
+            border-top: 2px solid var(--gold);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            color: #fff;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
+            /* Quan trọng cho iPhone đời mới: chừa chỗ cho thanh gạch ngang bên dưới */
+            padding-bottom: env(safe-area-inset-bottom);
+            box-sizing: content-box; /* Để padding không ăn vào height */
+            z-index: 101; /* Cao hơn login card một chút để chắc chắn nổi */
+        }
+
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll 25s linear infinite; /* Chậm lại chút cho dễ đọc */
+            font-weight: bold;
+            line-height: 50px;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* --- Màn hình 2: Game Screen --- */
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        .header-info {
+            position: absolute;
+            top: 60px; /* Hạ thấp xuống để tránh nút nhạc ở trên */
+            left: 0; right: 0;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            padding: 0 10px;
+        }
+        .header-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-weight: bold;
+            color: var(--red-lixi);
+            border: 2px solid var(--gold);
+            font-size: 1.1rem;
+            backdrop-filter: blur(5px);
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* --- SỬA VỊ TRÍ NÚT NHẠC --- */
+        #btn-toggle-sound {
+            font-family: 'Nunito', sans-serif;
+            position: fixed;
+            /* Đưa lên góc TRÊN TRÁI để tránh che bên dưới và không vướng header */
+            top: 15px;
+            left: 15px;
+            z-index: 9999; /* Luôn nổi trên cùng */
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        #btn-toggle-sound:hover {
+            background: var(--red-lixi);
+        }
+
+        /* --- STYLE BAO LÌ XÌ --- */
+        .lixi-bubble {
+            position: absolute;
+            width: 110px;
+            height: 200px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            will-change: transform;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 25px;
+            box-sizing: border-box;
+            user-select: none;
+            z-index: 5;
+            touch-action: manipulation;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .lx-en { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-family: 'Nunito', sans-serif; opacity: 0.9; pointer-events: none; }
+        .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.5rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
+        .lx-icon { font-size: 3rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
+
+        .style-yellow { background: #fbc02d; color: white; border-color: #fff9c4; }
+        .style-yellow .lx-vn { text-shadow: 2px 2px 0 #f57f17; }
+        .style-red-1 { background: #d32f2f; color: white; border-color: #ffcdd2; }
+        .style-green { background: #81c784; color: white; border-color: #c8e6c9; }
+        .style-red-2 { background: #b71c1c; color: white; border-color: #e57373; }
+        .style-red-2 .lx-vn { font-size: 2.2rem; margin-top: 5px; margin-bottom: 0; }
+        .style-red-2 .lx-sub { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; pointer-events: none; }
+
+        .popped { animation: popOut 0.3s forwards; pointer-events: none; }
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* --- Modal Kết quả --- */
+        .result-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            padding: 20px;
+        }
+        .result-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .result-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border: 5px solid var(--red-lixi);
+            transform: scale(0.5);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .result-overlay.show .result-card { transform: scale(1); }
+
+        .prize-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--yellow-lixi);
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #d32f2f;
+            line-height: 1.3;
+        }
+
+        /* --- Màn hình Cảm Ơn (Thay vì chuyển trang) --- */
+        #thank-you-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.9);
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+        #thank-you-screen.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #thank-you-screen h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+        #thank-you-screen p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        #firebase-status {
+            position: absolute;
+            top: 5px; right: 5px; /* Chuyển sang phải cho đỡ vướng nút nhạc */
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            z-index: 999;
+            pointer-events: none;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 30px 20px;
+                max-width: 95%;
+                /* Mobile: thẻ login nhỏ gọn hơn */
+                margin-bottom: 100px; 
+            }
+            .login-card h1 {
+                font-size: 2rem;
+            }
+            .lixi-bubble {
+                width: 90px;
+                height: 160px;
+                padding-top: 15px;
+            }
+            .lx-vn { font-size: 1.8rem; }
+            .lx-icon { font-size: 2.2rem; }
+            .lx-en { font-size: 0.6rem; }
+            
+            /* Nút nhạc trên mobile */
+            #btn-toggle-sound {
+                top: 15px;
+                left: 15px;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .marquee-container {
+                /* Đảm bảo chữ chạy không bị che */
+                height: 40px; 
+                line-height: 40px;
+            }
+            
+            .result-card {
+                padding: 30px 20px;
+            }
+            .prize-amount {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -434,7 +846,7 @@
     <div id="login-screen">
         <div class="login-card">
             <h1>Lì Xì 2026</h1>
-            <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ. Thử ngay vận may</p>
+            <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ</p>
             
             <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
             <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">VD: Việt, Lan...</p>
@@ -872,5 +1284,467 @@
     </script>
 </body>
 </html>
+    </style>
+</head>
+<body>
+
+    <!-- VIDEO BACKGROUND -->
+    <video id="bg-video" autoplay muted loop playsinline>
+        <source src="video_nen.mp4" type="video/mp4">
+    </video>
+    <!-- AUDIO BACKGROUND -->
+    <audio id="bg-music" loop autoplay>
+        <source src="nhac_nen.mp3" type="audio/mp3">
+    </audio>
+    <div id="bg-overlay"></div>
+    <div id="firebase-status">Kết nối: Đang kiểm tra...</div>
+
+    <!-- Nút đã được chuyển lên góc trên trái -->
+    <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
+        🔊 Nhạc
+    </button>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>Lì Xì 2026</h1>
+            <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ Thử ngay vận may</p>
+            
+            <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
+            <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">Ví Dụ: Việt, Lan...</p>
+            
+            <p id="error-msg"></p>
+            
+            <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
+        </div>
+
+        <div class="marquee-container">
+            <div class="marquee-text" id="history-text">
+                Đang tải danh sách người trúng thưởng...
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="header-info">
+            <div class="header-pill">
+                Chào <span id="display-name">...</span>, chạm vào lì xì để bắt nhé!
+            </div>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="result-modal">
+        <div class="result-card">
+            <h2 style="color: var(--red-lixi); margin:0;">🎉 Chúc Mừng 🎉</h2>
+            <p style="margin: 10px 0; color: #555;">Bạn <b id="winner-name"></b> đã nhận được:</p>
+            <div class="prize-amount" id="prize-amount">...</div>
+            <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
+            
+            <!-- Sửa: Gọi hàm showThankYou thay vì chuyển trang -->
+            <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="window.showThankYou()">
+                Cảm ơn Việt đẹp trai
+            </button>
+        </div>
+    </div>
+
+    <!-- Màn hình cảm ơn (Overlay) -->
+    <div id="thank-you-screen">
+        <h1>Cảm Ơn Bạn!</h1>
+        <p>Xuân Bính Ngọ 2026 gõ cửa, chúc bạn một năm mới dồi dào sức khỏe, tâm an trí sáng, sự nghiệp vững vàng và tài lộc hanh thông. Mong mỗi ngày trôi qua đều là một bước tiến, mỗi khó khăn đều hóa thành cơ hội, và mỗi ước mơ đều có ngày chạm tới.</p>
+        <br>
+        <button class="btn-confirm" style="width: auto; padding: 10px 30px;" onclick="location.reload()">Chơi Lại</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        let firebaseConfig;
+        let app, db, auth, userId;
+        let isFirebaseReady = false;
+        let fullHistoryData = [];
+        
+        try {
+            if (typeof __firebase_config !== 'undefined') {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } else {
+                firebaseConfig = {
+                    apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
+                    authDomain: "tets-4bdc2.firebaseapp.com",
+                    projectId: "tets-4bdc2",
+                    storageBucket: "tets-4bdc2.firebasestorage.app",
+                    messagingSenderId: "530765839954",
+                    appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
+                };
+            }
+            
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            const initAuth = async () => {
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (err) {
+                    console.error("Auth failed:", err);
+                    loadFromLocalStorage();
+                }
+            };
+            initAuth();
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    userId = user.uid;
+                    isFirebaseReady = true;
+                    document.getElementById('firebase-status').innerText = "Trạng thái: Online";
+                    document.getElementById('firebase-status').style.color = "#81c784";
+                    listenToHistory();
+                }
+            });
+
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+            loadFromLocalStorage();
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history`;
+        const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026';
+        
+        function loadFromLocalStorage() {
+            const statusEl = document.getElementById('firebase-status');
+            statusEl.innerText = "Chế độ: Offline";
+            statusEl.style.color = "orange";
+            
+            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            if (localData.length === 0) {
+                localData = [
+                    { name: "Hệ Thống", prize: "Chế độ Offline" },
+                    { name: "Demo User", prize: "50.000 VNĐ" }
+                ];
+            }
+            fullHistoryData = localData;
+            updateMarquee(localData);
+        }
+
+        function saveToLocalStorage(name, prize) {
+            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+            localData.unshift({ name, prize, timestamp: Date.now() });
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
+            fullHistoryData = localData;
+            updateMarquee(localData);
+        }
+
+        function listenToHistory() {
+            if (!db) return;
+            const q = collection(db, COLLECTION_NAME);
+            
+            onSnapshot(q, (snapshot) => {
+                const historyData = [];
+                snapshot.forEach((doc) => {
+                    historyData.push(doc.data());
+                });
+                
+                fullHistoryData = historyData;
+                historyData.sort((a, b) => b.timestamp - a.timestamp);
+                
+                const recentWinners = historyData.slice(0, 50);
+                if (recentWinners.length === 0) {
+                    updateMarquee([{ name: "Admin", prize: "Chưa có ai chơi, mở hàng đi!" }]);
+                } else {
+                    updateMarquee(recentWinners);
+                }
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                loadFromLocalStorage();
+            });
+        }
+
+        function updateMarquee(data) {
+            const textElement = document.getElementById('history-text');
+            if (!textElement) return;
+
+            const textContent = data.map(item => 
+                `<span style="color:#ffd700">★</span> <b>${item.name}</b>: ${item.prize}`
+            ).join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+            
+            textElement.innerHTML = textContent;
+        }
+
+        window.saveResultToFirebase = async (name, prize) => {
+            if (db && isFirebaseReady && userId) {
+                try {
+                    await addDoc(collection(db, COLLECTION_NAME), {
+                        name: name,
+                        prize: prize,
+                        timestamp: Date.now(),
+                        uid: userId
+                    });
+                } catch (e) {
+                    console.error("Save Error:", e);
+                    saveToLocalStorage(name, prize);
+                }
+            } else {
+                saveToLocalStorage(name, prize);
+            }
+        };
+
+        // --- CẤU HÌNH RESPONSIVE & GAME ---
+        const isMobile = window.innerWidth < 768;
+        const BUBBLE_COUNT = isMobile ? 8 : 18;
+        const SPEED_BASE = isMobile ? 0.8 : 1.0;
+        
+        const bubbleWidth = isMobile ? 90 : 110; 
+        const bubbleHeight = isMobile ? 160 : 200;
+
+        const templates = [
+            { class: 'style-yellow', en: 'SAY HI', vn: 'Tết', icon: '👫' },
+            { class: 'style-red-1', en: 'EM CHÀO', vn: 'Tết', icon: '💃' },
+            { class: 'style-green', en: 'HAPPY', vn: 'Tết', icon: '👦' },
+            { class: 'style-red-2', en: 'ĐỦ ĐẦY', vn: 'Tết', icon: '🐴', isSub: true },
+            { class: 'style-red-2', en: 'TÀI LỘC', vn: 'Tết', icon: '💰', isSub: true },
+            { class: 'style-red-2', en: 'HẠNH PHÚC', vn: 'Tết', icon: '🥰', isSub: true }
+        ];
+
+        const prizes = [
+            "Cái nịt (Limited Edition) 🎀",
+            "Một tràng pháo tay 👏",
+            "Chúc bạn bớt ngáo đá 🤪",
+            "Tết này vẫn giống Tết xưa, vẫn đi xe số vẫn thừa ghế sau 🏍️",
+            "1.000 VNĐ (Tượng trưng) 💸",
+            "Một nụ cười tỏa nắng 😁",
+            "Vé số chiều xổ (chưa mua) 🎟️",
+            "Chúc bạn sớm có người yêu (trong mơ) 😴",
+            "Lì xì bằng niềm tin ✨",
+            "500 anh em 👨‍👨‍👦‍👦",
+            "Không có gì ngoài tấm lòng ❤️",
+            "Sự đẹp trai của Admin 😎",
+            "Chúc bạn may mắn lần sau... mà chắc không có lần sau đâu! 😂"
+        ];
+
+        let userName = "";
+        let animationFrameId;
+        const bubbles = []; 
+        let isGameOver = false;
+        let musicStarted = false;
+
+        window.toggleSound = (e) => {
+            if (e) e.stopPropagation();
+            const music = document.getElementById('bg-music');
+            if (music.paused) {
+                music.play().catch(e => console.log("Audio requires interaction"));
+                musicStarted = true;
+                document.getElementById('btn-toggle-sound').innerHTML = "🔊 Nhạc: Bật";
+            } else {
+                music.pause();
+                document.getElementById('btn-toggle-sound').innerHTML = "🔇 Nhạc: Tắt";
+            }
+        };
+
+        window.forcePlayMusic = () => {
+            if (musicStarted) return;
+            const music = document.getElementById('bg-music');
+            const video = document.getElementById('bg-video');
+            if (video && video.paused) video.play().catch(() => {});
+            if (music) {
+                music.play().then(() => {
+                    musicStarted = true;
+                }).catch((e) => {
+                    console.log("Autoplay blocked, waiting for interaction");
+                });
+            }
+        };
+
+        window.clearError = () => {
+            const input = document.getElementById('username');
+            const errorMsg = document.getElementById('error-msg');
+            input.classList.remove('error');
+            errorMsg.style.display = 'none';
+            window.forcePlayMusic();
+        }
+
+        // --- HÀM KIỂM TRA TÊN HỢP LỆ ---
+        function isValidVietnameseName(name) {
+            // Chỉ cho phép chữ cái tiếng Việt, tiếng Anh và khoảng trắng
+            // Không cho phép số hoặc ký tự đặc biệt
+            // Độ dài ít nhất 2 ký tự
+            const regex = /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵýỷỹ\s]{2,50}$/;
+            return regex.test(name);
+        }
+
+        window.startGame = () => {
+            const input = document.getElementById('username');
+            const errorMsg = document.getElementById('error-msg');
+            const rawName = input.value.trim();
+
+            // Kiểm tra rỗng
+            if (!rawName) {
+                input.classList.add('error');
+                input.focus();
+                return;
+            }
+
+            // Kiểm tra tên hợp lệ (Tiếng Việt, ko ký tự lạ)
+            if (!isValidVietnameseName(rawName)) {
+                input.classList.add('error');
+                errorMsg.innerHTML = `⚠️ Tên không hợp lệ!<br>Vui lòng nhập tên thật, không dùng số hoặc ký tự lạ.`;
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const playCount = fullHistoryData.filter(p => p.name.toLowerCase() === rawName.toLowerCase()).length;
+
+            if (playCount >= 2) {
+                input.classList.add('error');
+                errorMsg.innerHTML = `⚠️ Tên "<b>${rawName}</b>" đã hết lượt tham gia!<br>Quy định: Tối đa 2 người cùng tên được nhận thưởng.`;
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            userName = rawName;
+            document.getElementById('display-name').innerText = userName;
+            
+            window.forcePlayMusic(); 
+            document.getElementById('login-screen').classList.add('slide-up');
+            initBubbles();
+            animate();
+        };
+
+        // Hàm hiển thị màn hình Cảm Ơn (Overlay)
+        window.showThankYou = () => {
+            const resultModal = document.getElementById('result-modal');
+            const thankYouScreen = document.getElementById('thank-you-screen');
+            
+            // Ẩn modal kết quả
+            resultModal.classList.remove('show');
+            
+            // Hiện màn hình cảm ơn
+            setTimeout(() => {
+                thankYouScreen.classList.add('visible');
+            }, 300);
+        };
+
+        class Bubble {
+            constructor() {
+                this.el = document.createElement('div');
+                this.el.className = 'lixi-bubble';
+                const tpl = templates[Math.floor(Math.random() * templates.length)];
+                this.el.classList.add(tpl.class);
+                
+                if (tpl.isSub) {
+                    this.el.innerHTML = `<div class="lx-vn">${tpl.vn}</div><div class="lx-sub">${tpl.en}</div><div class="lx-icon">${tpl.icon}</div>`;
+                } else {
+                    this.el.innerHTML = `<div class="lx-en">${tpl.en}</div><div class="lx-vn">${tpl.vn}</div><div class="lx-icon">${tpl.icon}</div>`;
+                }
+
+                this.width = bubbleWidth;
+                this.height = bubbleHeight;
+                
+                this.x = Math.random() * (window.innerWidth - this.width);
+                this.y = Math.random() * (window.innerHeight - this.height);
+                
+                const dirX = Math.random() < 0.5 ? -1 : 1;
+                const dirY = Math.random() < 0.5 ? -1 : 1;
+                this.vx = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirX;
+                this.vy = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirY;
+
+                this.el.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation(); 
+                    if (!isGameOver) {
+                        this.pop();
+                    }
+                });
+
+                document.getElementById('game-container').appendChild(this.el);
+                this.updatePosition(); 
+            }
+
+            update() {
+                if (isGameOver) return;
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x <= 0 || this.x + this.width >= window.innerWidth) {
+                    this.vx *= -1;
+                    this.x = Math.max(0, Math.min(this.x, window.innerWidth - this.width));
+                }
+                if (this.y <= 0 || this.y + this.height >= window.innerHeight) {
+                    this.vy *= -1;
+                    this.y = Math.max(0, Math.min(this.y, window.innerHeight - this.height));
+                }
+                this.updatePosition();
+            }
+
+            updatePosition() {
+                this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
+            }
+
+            pop() {
+                isGameOver = true;
+                cancelAnimationFrame(animationFrameId); 
+                this.el.classList.add('popped'); 
+                
+                let prize;
+                const n = userName.toLowerCase();
+
+                if (n.includes('quang') || n.includes('hải') || n.includes('hoàng') || n.includes('đạt')) {
+                    prize = "5.000 VNĐ";
+                } 
+                else if (n.includes('hoàn')) {
+                    prize = "100.000 VNĐ";
+                } 
+                else {
+                    prize = prizes[Math.floor(Math.random() * prizes.length)];
+                }
+                
+                if (window.saveResultToFirebase) {
+                    window.saveResultToFirebase(userName, prize);
+                }
+
+                setTimeout(() => {
+                    document.getElementById('winner-name').innerText = userName;
+                    document.getElementById('prize-amount').innerText = prize;
+                    document.getElementById('result-modal').classList.add('show');
+                }, 300);
+            }
+        }
+
+        function initBubbles() {
+            for (let i = 0; i < BUBBLE_COUNT; i++) {
+                bubbles.push(new Bubble());
+            }
+        }
+
+        function animate() {
+            if (isGameOver) return;
+            bubbles.forEach(b => b.update());
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            bubbles.forEach(b => {
+                b.x = Math.min(b.x, window.innerWidth - b.width);
+                b.y = Math.min(b.y, window.innerHeight - b.height);
+                b.updatePosition();
+            });
+        });
+        
+        window.addEventListener('load', () => {
+             window.forcePlayMusic();
+             const unlockAudio = () => {
+                 window.forcePlayMusic();
+                 document.removeEventListener('click', unlockAudio);
+                 document.removeEventListener('touchstart', unlockAudio);
+             };
+             document.addEventListener('click', unlockAudio);
+             document.addEventListener('touchstart', unlockAudio);
+        });
+    </script>
+</body>
+</html>
+
 
 
