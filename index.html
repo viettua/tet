@@ -518,9 +518,12 @@
 
             const initAuth = async () => {
                 try {
-                    // Khi dùng Firebase riêng, không dùng token của Canvas (vì sẽ bị lệch project)
-                    // Chuyển sang đăng nhập ẩn danh trực tiếp
-                    await signInAnonymously(auth);
+                    // Nếu chạy trên Canvas thì dùng token
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
                 } catch (err) {
                     console.error("Auth failed:", err);
                     loadFromLocalStorage();
