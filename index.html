@@ -551,11 +551,12 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history`;
-        const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026';
+        // ĐỔI KEY LOCAL STORAGE ĐỂ XÓA DỮ LIỆU TEST CŨ
+        const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026_new';
         
         function loadFromLocalStorage() {
             const statusEl = document.getElementById('firebase-status');
-            statusEl.innerText = "Chế độ: Offline";
+            statusEl.innerText = "Chế độ: Offline (Lỗi kết nối/Auth)";
             statusEl.style.color = "orange";
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
@@ -601,6 +602,7 @@
 
             }, (error) => {
                 console.error("Firestore Error:", error);
+                // Nếu lỗi permission (do chưa config domain), fallback về local
                 loadFromLocalStorage();
             });
         }
@@ -619,7 +621,6 @@
             textElement.innerHTML = textContent;
 
             // FIX: Buộc trình duyệt vẽ lại (reflow) để kích hoạt animation ngay lập tức
-            // Đây là bước quan trọng sửa lỗi "phải chạm vào mới chạy" trên mobile
             textElement.style.animation = 'none';
             textElement.offsetHeight; /* trigger reflow */
             textElement.style.animation = 'scroll 25s linear infinite';
@@ -721,7 +722,7 @@
         function isValidVietnameseName(name) {
             const blockedWords = ["fa", "abc", "xyz", "admin", "123", "test", "demo", "null", "undefined", "bot"];
             if (blockedWords.includes(name.toLowerCase())) return false;
-            // Cho phép ký tự tiếng Việt, dấu cách, độ dài 2-50
+            // Cho phép ký tự tiếng Việt đầy đủ, dấu cách, độ dài 2-50
             const vietnameseRegex = /^[a-zA-ZàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ\s]{2,50}$/;
             return vietnameseRegex.test(name);
         }
