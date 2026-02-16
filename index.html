@@ -502,7 +502,7 @@
         let fullHistoryData = [];
         
         // --- DỮ LIỆU ẢO BAN ĐẦU (FAKE WINNERS) ---
-        // Sẽ hiển thị ngay khi tải trang để không bị trống
+        // Dữ liệu này sẽ hiện ngay khi vào game (thay thế cho dữ liệu cũ)
         const fakeWinners = [
             { name: "Minh Anh", prize: "50.000 VNĐ" },
             { name: "Thanh Tùng", prize: "20.000 VNĐ" },
@@ -518,12 +518,8 @@
 
             const initAuth = async () => {
                 try {
-                    // Nếu chạy trên Canvas thì dùng token
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    // SỬA LỖI AUTH: Sử dụng signInAnonymously cho Firebase riêng
+                    await signInAnonymously(auth);
                 } catch (err) {
                     console.error("Auth failed:", err);
                     loadFromLocalStorage();
@@ -547,9 +543,11 @@
         }
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history`;
-        // ĐỔI KEY LOCAL STORAGE ĐỂ XÓA DỮ LIỆU TEST CŨ
-        const LOCAL_STORAGE_KEY = 'lixi_offline_data_2026_new';
+        // ĐỔI ĐƯỜNG DẪN MỚI ĐỂ XOÁ SẠCH DỮ LIỆU CŨ TRÊN DATABASE (NẾU CÓ)
+        const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history_v3`;
+        
+        // QUAN TRỌNG: ĐỔI KEY LOCAL STORAGE ĐỂ ÉP TRÌNH DUYỆT XOÁ DỮ LIỆU CŨ (Tua, Hân, Kiệt...)
+        const LOCAL_STORAGE_KEY = 'lixi_storage_v3_final';
         
         function loadFromLocalStorage() {
             const statusEl = document.getElementById('firebase-status');
@@ -557,11 +555,9 @@
             statusEl.style.color = "orange";
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-            
-            // Gộp dữ liệu local với fake data
             let displayData = [...fakeWinners, ...localData];
             
-            fullHistoryData = localData; // Dữ liệu thật để check trùng tên
+            fullHistoryData = localData; 
             updateMarquee(displayData);
         }
 
@@ -571,7 +567,6 @@
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
             fullHistoryData = localData;
             
-            // Cập nhật lại marquee (Fake + Mới nhất)
             updateMarquee([...fakeWinners, ...localData]);
         }
 
@@ -585,11 +580,10 @@
                     historyData.push(doc.data());
                 });
                 
-                fullHistoryData = historyData; // Dữ liệu thật dùng để check trùng
+                fullHistoryData = historyData; 
                 historyData.sort((a, b) => b.timestamp - a.timestamp);
                 
-                // Hiển thị: Fake Winners trộn với Real Winners (hoặc ưu tiên Real mới nhất)
-                // Chiến thuật: Lấy 10 người mới nhất thật + Fake winners để luôn có chữ chạy
+                // Hiển thị: Fake Winners trộn với Real Winners
                 let displayList = [...historyData.slice(0, 20)];
                 if (displayList.length < 5) {
                     displayList = [...fakeWinners, ...displayList];
@@ -599,7 +593,6 @@
 
             }, (error) => {
                 console.error("Firestore Error:", error);
-                // Nếu lỗi permission (do chưa config domain), fallback về local
                 loadFromLocalStorage();
             });
         }
@@ -608,7 +601,6 @@
             const textElement = document.getElementById('history-text');
             if (!textElement) return;
 
-            // Nếu không có dữ liệu nào (hiếm khi xảy ra do đã có fake), fallback
             if (data.length === 0) data = fakeWinners;
 
             const textContent = data.map(item => 
@@ -617,7 +609,6 @@
             
             textElement.innerHTML = textContent;
 
-            // FIX: Buộc trình duyệt vẽ lại (reflow) để kích hoạt animation ngay lập tức
             textElement.style.animation = 'none';
             textElement.offsetHeight; /* trigger reflow */
             textElement.style.animation = 'scroll 25s linear infinite';
