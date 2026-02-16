@@ -487,7 +487,16 @@
         import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        let firebaseConfig;
+        // CẤU HÌNH FIREBASE CHÍNH CHỦ
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
+            authDomain: "tets-4bdc2.firebaseapp.com",
+            projectId: "tets-4bdc2",
+            storageBucket: "tets-4bdc2.firebasestorage.app",
+            messagingSenderId: "530765839954",
+            appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
+        };
+
         let app, db, auth, userId;
         let isFirebaseReady = false;
         let fullHistoryData = [];
@@ -503,30 +512,15 @@
         ];
 
         try {
-            if (typeof __firebase_config !== 'undefined') {
-                firebaseConfig = JSON.parse(__firebase_config);
-            } else {
-                firebaseConfig = {
-                    apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
-                    authDomain: "tets-4bdc2.firebaseapp.com",
-                    projectId: "tets-4bdc2",
-                    storageBucket: "tets-4bdc2.firebasestorage.app",
-                    messagingSenderId: "530765839954",
-                    appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
-                };
-            }
-            
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
 
             const initAuth = async () => {
                 try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    // Khi dùng Firebase riêng, không dùng token của Canvas (vì sẽ bị lệch project)
+                    // Chuyển sang đăng nhập ẩn danh trực tiếp
+                    await signInAnonymously(auth);
                 } catch (err) {
                     console.error("Auth failed:", err);
                     loadFromLocalStorage();
