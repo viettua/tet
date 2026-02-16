@@ -23,7 +23,6 @@
             background-color: #3e0a0a;
             background: linear-gradient(135deg, #3e0a0a 0%, #7f0000 100%);
             height: 100vh;
-            /* Hỗ trợ tính chiều cao full trên mobile (tránh thanh address bar che) */
             height: 100dvh; 
             overflow: hidden;
             user-select: none;
@@ -80,7 +79,7 @@
             border: 4px solid var(--gold);
             position: relative;
             backdrop-filter: blur(10px);
-            margin-bottom: 80px; /* Đẩy lên cao hơn để không đè vào marquee */
+            margin-bottom: 60px; /* Điều chỉnh lại khoảng cách đáy */
         }
 
         .login-card h1 {
@@ -154,12 +153,12 @@
         /* --- DÒNG CHỮ CHẠY (MARQUEE) --- */
         .marquee-container {
             position: absolute;
-            /* Đặt cố định ở đáy, dùng padding-bottom để tránh tai thỏ/home bar */
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 50px; /* Tăng chiều cao xíu */
-            background: rgba(183, 28, 28, 0.95); /* Đậm hơn cho dễ đọc */
+            /* Cố định chiều cao và trừ đi phần tai thỏ nếu có */
+            height: 40px; 
+            background: rgba(160, 0, 0, 0.95);
             border-top: 2px solid var(--gold);
             overflow: hidden;
             display: flex;
@@ -167,20 +166,20 @@
             white-space: nowrap;
             color: #fff;
             font-family: 'Nunito', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-            /* Quan trọng cho iPhone đời mới: chừa chỗ cho thanh gạch ngang bên dưới */
             padding-bottom: env(safe-area-inset-bottom);
-            box-sizing: content-box; /* Để padding không ăn vào height */
-            z-index: 101; /* Cao hơn login card một chút để chắc chắn nổi */
+            z-index: 101;
         }
 
         .marquee-text {
             display: inline-block;
             padding-left: 100%;
-            animation: scroll 25s linear infinite; /* Chậm lại chút cho dễ đọc */
+            animation: scroll 20s linear infinite;
             font-weight: bold;
-            line-height: 50px;
+            will-change: transform;
+            /* Đảm bảo text được căn giữa theo chiều dọc */
+            line-height: 40px; 
         }
 
         @keyframes scroll {
@@ -199,7 +198,7 @@
 
         .header-info {
             position: absolute;
-            top: 60px; /* Hạ thấp xuống để tránh nút nhạc ở trên */
+            top: 60px;
             left: 0; right: 0;
             text-align: center;
             z-index: 10;
@@ -227,10 +226,9 @@
         #btn-toggle-sound {
             font-family: 'Nunito', sans-serif;
             position: fixed;
-            /* Đưa lên góc TRÊN TRÁI để tránh che bên dưới và không vướng header */
             top: 15px;
             left: 15px;
-            z-index: 9999; /* Luôn nổi trên cùng */
+            z-index: 9999;
             background: rgba(0,0,0,0.6);
             color: white;
             border: 1px solid rgba(255,255,255,0.5);
@@ -328,7 +326,7 @@
             line-height: 1.3;
         }
 
-        /* --- Màn hình Cảm Ơn (Thay vì chuyển trang) --- */
+        /* --- Màn hình Cảm Ơn --- */
         #thank-you-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -363,7 +361,7 @@
 
         #firebase-status {
             position: absolute;
-            top: 5px; right: 5px; /* Chuyển sang phải cho đỡ vướng nút nhạc */
+            top: 5px; right: 5px;
             font-size: 10px;
             color: rgba(255,255,255,0.7);
             z-index: 999;
@@ -375,8 +373,7 @@
             .login-card {
                 padding: 30px 20px;
                 max-width: 95%;
-                /* Mobile: thẻ login nhỏ gọn hơn */
-                margin-bottom: 100px; 
+                margin-bottom: 80px; 
             }
             .login-card h1 {
                 font-size: 2rem;
@@ -390,7 +387,6 @@
             .lx-icon { font-size: 2.2rem; }
             .lx-en { font-size: 0.6rem; }
             
-            /* Nút nhạc trên mobile */
             #btn-toggle-sound {
                 top: 15px;
                 left: 15px;
@@ -399,8 +395,9 @@
             }
 
             .marquee-container {
-                /* Đảm bảo chữ chạy không bị che */
                 height: 40px; 
+            }
+            .marquee-text {
                 line-height: 40px;
             }
             
@@ -417,7 +414,6 @@
 
     <!-- VIDEO BACKGROUND -->
     <video id="bg-video" autoplay muted loop playsinline>
-        <!-- Đã đổi sang video mới -->
         <source src="video_nen_new.mp4" type="video/mp4">
     </video>
     <!-- AUDIO BACKGROUND -->
@@ -435,11 +431,9 @@
     <div id="login-screen">
         <div class="login-card">
             <h1>Lì Xì 2026</h1>
-            <!-- Đã cập nhật text và xuống dòng -->
             <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ<br>Thử ngay vận may</p>
             
             <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
-            <!-- Đã đổi VD thành Ví Dụ -->
             <p style="font-size: 0.8rem; color: #999; margin-top: 10px; font-style: italic;">Ví Dụ: Việt, Lan...</p>
             
             <p id="error-msg"></p>
@@ -449,7 +443,7 @@
 
         <div class="marquee-container">
             <div class="marquee-text" id="history-text">
-                Đang tải danh sách người trúng thưởng...
+                <!-- Sẽ được điền bởi JS -->
             </div>
         </div>
     </div>
@@ -469,7 +463,6 @@
             <div class="prize-amount" id="prize-amount">...</div>
             <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
             
-            <!-- Sửa: Gọi hàm showThankYou thay vì chuyển trang -->
             <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="window.showThankYou()">
                 Cảm ơn Việt đẹp trai
             </button>
@@ -494,6 +487,16 @@
         let isFirebaseReady = false;
         let fullHistoryData = [];
         
+        // --- DỮ LIỆU ẢO BAN ĐẦU (FAKE WINNERS) ---
+        // Sẽ hiển thị ngay khi tải trang để không bị trống
+        const fakeWinners = [
+            { name: "Minh Anh", prize: "50.000 VNĐ" },
+            { name: "Thanh Tùng", prize: "20.000 VNĐ" },
+            { name: "Hồng Nhung", prize: "50.000 VNĐ" },
+            { name: "Đức Thịnh", prize: "20.000 VNĐ" },
+            { name: "Ngọc Hà", prize: "100.000 VNĐ" }
+        ];
+
         try {
             if (typeof __firebase_config !== 'undefined') {
                 firebaseConfig = JSON.parse(__firebase_config);
@@ -551,14 +554,12 @@
             statusEl.style.color = "orange";
             
             let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-            if (localData.length === 0) {
-                localData = [
-                    { name: "Hệ Thống", prize: "Chế độ Offline" },
-                    { name: "Demo User", prize: "50.000 VNĐ" }
-                ];
-            }
-            fullHistoryData = localData;
-            updateMarquee(localData);
+            
+            // Gộp dữ liệu local với fake data
+            let displayData = [...fakeWinners, ...localData];
+            
+            fullHistoryData = localData; // Dữ liệu thật để check trùng tên
+            updateMarquee(displayData);
         }
 
         function saveToLocalStorage(name, prize) {
@@ -566,7 +567,9 @@
             localData.unshift({ name, prize, timestamp: Date.now() });
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
             fullHistoryData = localData;
-            updateMarquee(localData);
+            
+            // Cập nhật lại marquee (Fake + Mới nhất)
+            updateMarquee([...fakeWinners, ...localData]);
         }
 
         function listenToHistory() {
@@ -579,15 +582,18 @@
                     historyData.push(doc.data());
                 });
                 
-                fullHistoryData = historyData;
+                fullHistoryData = historyData; // Dữ liệu thật dùng để check trùng
                 historyData.sort((a, b) => b.timestamp - a.timestamp);
                 
-                const recentWinners = historyData.slice(0, 50);
-                if (recentWinners.length === 0) {
-                    updateMarquee([{ name: "Admin", prize: "Chưa có ai chơi, mở hàng đi!" }]);
-                } else {
-                    updateMarquee(recentWinners);
+                // Hiển thị: Fake Winners trộn với Real Winners (hoặc ưu tiên Real mới nhất)
+                // Chiến thuật: Lấy 10 người mới nhất thật + Fake winners để luôn có chữ chạy
+                let displayList = [...historyData.slice(0, 20)];
+                if (displayList.length < 5) {
+                    displayList = [...fakeWinners, ...displayList];
                 }
+                
+                updateMarquee(displayList);
+
             }, (error) => {
                 console.error("Firestore Error:", error);
                 loadFromLocalStorage();
@@ -598,9 +604,12 @@
             const textElement = document.getElementById('history-text');
             if (!textElement) return;
 
+            // Nếu không có dữ liệu nào (hiếm khi xảy ra do đã có fake), fallback
+            if (data.length === 0) data = fakeWinners;
+
             const textContent = data.map(item => 
-                `<span style="color:#ffd700">★</span> <b>${item.name}</b>: ${item.prize}`
-            ).join("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+                `<span style="color:#ffd700; margin-left: 20px;">★</span> <b style="color: white;">${item.name}</b>: <span style="color: #ffd700;">${item.prize}</span>`
+            ).join("");
             
             textElement.innerHTML = textContent;
         }
@@ -643,17 +652,12 @@
         const prizes = [
             "Cái nịt (Limited Edition) 🎀",
             "Một tràng pháo tay 👏",
-            "Sếp thương, đồng nghiệp quý, deadline tự động lùi ⏳",
+            "Chúc bạn bớt ngáo đá 🤪",
             "Tết này vẫn giống Tết xưa, vẫn đi xe số vẫn thừa ghế sau 🏍️",
-            "1.000 VNĐ (Tưởng tượng) 💸",
-            "Tết này ăn không lo béo, tiêu không lo nghèo 🧧",
-            "Lì xì không có tiền, nhưng có vận may đi kèm 🍀",
-            "Tiền vào túi nhanh như tốc độ bạn tiêu tiền 🚀",
-            "Mong bạn giàu thật, không phải giàu qua lời kể 🤫",
-            "Mong năm mới giàu thật chứ không giàu trong… suy nghĩ 🧠",
+            "1.000 VNĐ (Tượng trưng) 💸",
             "Một nụ cười tỏa nắng 😁",
-            "Mọi ước mơ đều thành hiện thực, trừ ước mơ lười biếng) 🛌",
-            "Chúc bạn sớm có người yêu (trong mơ) 💭",
+            "Vé số chiều xổ (chưa mua) 🎟️",
+            "Chúc bạn sớm có người yêu (trong mơ) 😴",
             "Lì xì bằng niềm tin ✨",
             "500 anh em 👨‍👨‍👦‍👦",
             "Không có gì ngoài tấm lòng ❤️",
@@ -704,18 +708,10 @@
 
         // --- HÀM KIỂM TRA TÊN HỢP LỆ ---
         function isValidVietnameseName(name) {
-            // Danh sách các từ khóa bị chặn (Blacklist)
             const blockedWords = ["fa", "abc", "xyz", "admin", "123", "test", "demo", "null", "undefined", "bot"];
-            
-            if (blockedWords.includes(name.toLowerCase())) {
-                return false;
-            }
-
-            // Regex đầy đủ cho tiếng Việt bao gồm mọi ký tự có dấu
-            // Cho phép: Chữ cái (viết hoa/thường), khoảng trắng.
-            // Độ dài: 2 - 50 ký tự.
+            if (blockedWords.includes(name.toLowerCase())) return false;
+            // Cho phép ký tự tiếng Việt, dấu cách, độ dài 2-50
             const vietnameseRegex = /^[a-zA-ZàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ\s]{2,50}$/;
-            
             return vietnameseRegex.test(name);
         }
 
@@ -724,17 +720,15 @@
             const errorMsg = document.getElementById('error-msg');
             const rawName = input.value.trim();
 
-            // Kiểm tra rỗng
             if (!rawName) {
                 input.classList.add('error');
                 input.focus();
                 return;
             }
 
-            // Kiểm tra tên hợp lệ
             if (!isValidVietnameseName(rawName)) {
                 input.classList.add('error');
-                errorMsg.innerHTML = `⚠️ Tên không hợp lệ!<br>Vui lòng nhập tên thật, không dùng ký tự lạ hoặc từ viết tắt (fa, abc...).`;
+                errorMsg.innerHTML = `⚠️ Tên không hợp lệ!<br>Vui lòng nhập tên thật, không dùng ký tự lạ hoặc từ viết tắt.`;
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -757,15 +751,10 @@
             animate();
         };
 
-        // Hàm hiển thị màn hình Cảm Ơn (Overlay)
         window.showThankYou = () => {
             const resultModal = document.getElementById('result-modal');
             const thankYouScreen = document.getElementById('thank-you-screen');
-            
-            // Ẩn modal kết quả
             resultModal.classList.remove('show');
-            
-            // Hiện màn hình cảm ơn
             setTimeout(() => {
                 thankYouScreen.classList.add('visible');
             }, 300);
@@ -786,7 +775,6 @@
 
                 this.width = bubbleWidth;
                 this.height = bubbleHeight;
-                
                 this.x = Math.random() * (window.innerWidth - this.width);
                 this.y = Math.random() * (window.innerHeight - this.height);
                 
@@ -875,6 +863,9 @@
             });
         });
         
+        // Load data immediately even offline
+        updateMarquee(fakeWinners);
+
         window.addEventListener('load', () => {
              window.forcePlayMusic();
              const unlockAudio = () => {
@@ -888,4 +879,3 @@
     </script>
 </body>
 </html>
-
