@@ -2,890 +2,539 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Săn Lì Xì 2026 (Online)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Thi Minh Họa - Tin Học 5</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Pacifico&display=swap');
-
-        :root {
-            --bg-cream: #fff8e1;
-            --red-lixi: #d32f2f;
-            --yellow-lixi: #fbc02d;
-            --green-lixi: #81c784;
-            --gold: #ffd700;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Nunito', sans-serif;
-            background-color: #3e0a0a;
-            background: linear-gradient(135deg, #3e0a0a 0%, #7f0000 100%);
-            height: 100vh;
-            height: 100dvh; 
-            overflow: hidden;
-            user-select: none;
-            touch-action: none;
-        }
-
-        /* --- GLOBAL BACKGROUND --- */
-        #bg-video {
-            position: fixed;
-            top: 50%; left: 50%;
-            min-width: 100%; min-height: 100%;
-            width: auto; height: auto;
-            transform: translate(-50%, -50%);
-            z-index: -2;
-            object-fit: cover;
-        }
-
-        #bg-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.35);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* --- Màn hình 1: Nhập tên --- */
-        #login-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.3); 
-            z-index: 100;
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.8s;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        #login-screen.slide-up {
-            transform: translateY(-100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-            border: 4px solid var(--gold);
-            position: relative;
-            backdrop-filter: blur(10px);
-            margin-bottom: 60px; /* Điều chỉnh lại khoảng cách đáy */
-        }
-
-        .login-card h1 {
-            font-family: 'Pacifico', cursive;
-            color: var(--red-lixi);
-            margin: 0 0 15px;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-        }
-
-        .login-card input {
-            font-family: 'Nunito', sans-serif;
-            width: 100%;
-            padding: 15px;
-            margin-top: 15px;
-            border: 2px solid #ddd;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            text-align: center;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.3s;
-            background: rgba(255,255,255,0.9);
-        }
-        .login-card input:focus { 
-            border-color: var(--red-lixi); 
-            background: #fff; 
-            box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
-        }
-        .login-card input.error { border-color: red; background: #fff0f0; }
-
-        #error-msg {
-            color: #d32f2f;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            font-weight: bold;
-            display: none;
-            animation: shake 0.5s;
-            background: #ffebee;
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-
-        .btn-confirm {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(45deg, var(--red-lixi), #b71c1c);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 900;
-            margin-top: 25px;
-            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
-            transition: transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            width: 100%;
-        }
-        .btn-confirm:active { transform: scale(0.95); }
-
-        /* --- DÒNG CHỮ CHẠY (MARQUEE) - SỬA LỖI MOBILE --- */
-        .marquee-container {
-            /* Dùng fixed thay vì absolute để đảm bảo vị trí trên mobile */
-            position: fixed; 
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 45px; 
-            background: rgba(160, 0, 0, 0.95);
-            border-top: 2px solid var(--gold);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            color: #fff;
-            font-family: 'Nunito', sans-serif;
-            font-size: 0.95rem;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 101;
-            /* Kích hoạt GPU layer để render mượt hơn */
-            transform: translateZ(0);
-        }
-
-        .marquee-text {
-            display: inline-block;
-            /* Dùng 100vw để chắc chắn đẩy chữ ra ngoài màn hình */
-            padding-left: 100vw;
-            /* Tăng thời gian lên 25s cho mượt */
-            animation: scroll 25s linear infinite;
-            font-weight: bold;
-            line-height: 45px; 
-            /* Sửa lỗi Safari */
-            transform: translate3d(0, 0, 0);
-        }
-
-        @keyframes scroll {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        /* --- Màn hình 2: Game Screen --- */
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
-            overflow: hidden;
-        }
-
-        .header-info {
-            position: absolute;
-            top: 60px;
-            left: 0; right: 0;
-            text-align: center;
-            z-index: 10;
-            pointer-events: none;
-            padding: 0 10px;
-        }
-        .header-pill {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 25px;
-            border-radius: 50px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            font-weight: bold;
-            color: var(--red-lixi);
-            border: 2px solid var(--gold);
-            font-size: 1.1rem;
-            backdrop-filter: blur(5px);
-            max-width: 90%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        /* --- SỬA VỊ TRÍ NÚT NHẠC --- */
-        #btn-toggle-sound {
-            font-family: 'Nunito', sans-serif;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 9999;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.5);
-            padding: 8px 15px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-        }
-        #btn-toggle-sound:hover {
-            background: var(--red-lixi);
-        }
-
-        /* --- STYLE BAO LÌ XÌ --- */
-        .lixi-bubble {
-            position: absolute;
-            width: 110px;
-            height: 200px;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-            will-change: transform;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding-top: 25px;
-            box-sizing: border-box;
-            user-select: none;
-            z-index: 5;
-            touch-action: manipulation;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        
-        .lx-en { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; font-family: 'Nunito', sans-serif; opacity: 0.9; pointer-events: none; }
-        .lx-vn { font-family: 'Pacifico', cursive; font-size: 2.5rem; line-height: 1; margin-bottom: 15px; pointer-events: none; }
-        .lx-icon { font-size: 3rem; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.1)); pointer-events: none; }
-
-        .style-yellow { background: #fbc02d; color: white; border-color: #fff9c4; }
-        .style-yellow .lx-vn { text-shadow: 2px 2px 0 #f57f17; }
-        .style-red-1 { background: #d32f2f; color: white; border-color: #ffcdd2; }
-        .style-green { background: #81c784; color: white; border-color: #c8e6c9; }
-        .style-red-2 { background: #b71c1c; color: white; border-color: #e57373; }
-        .style-red-2 .lx-vn { font-size: 2.2rem; margin-top: 5px; margin-bottom: 0; }
-        .style-red-2 .lx-sub { font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; pointer-events: none; }
-
-        .popped { animation: popOut 0.3s forwards; pointer-events: none; }
-        @keyframes popOut {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        /* --- Modal Kết quả --- */
-        .result-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            z-index: 200;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            padding: 20px;
-        }
-        .result-overlay.show { opacity: 1; pointer-events: auto; }
-
-        .result-card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 30px;
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            border: 5px solid var(--red-lixi);
-            transform: scale(0.5);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .result-overlay.show .result-card { transform: scale(1); }
-
-        .prize-amount {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--yellow-lixi);
-            margin: 20px 0;
-            text-shadow: 2px 2px 0 #d32f2f;
-            line-height: 1.3;
-        }
-
-        /* --- Màn hình Cảm Ơn --- */
-        #thank-you-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0,0,0,0.9);
-            z-index: 300;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-            text-align: center;
-            color: white;
-            padding: 20px;
-        }
-        #thank-you-screen.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #thank-you-screen h1 {
-            font-family: 'Pacifico', cursive;
-            font-size: 3rem;
-            color: var(--gold);
-            margin-bottom: 20px;
-        }
-        #thank-you-screen p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            max-width: 600px;
-        }
-
-        #firebase-status {
-            position: absolute;
-            top: 5px; right: 5px;
-            font-size: 10px;
-            color: rgba(255,255,255,0.7);
-            z-index: 999;
-            pointer-events: none;
-            text-align: right;
-        }
-
-        @media (max-width: 768px) {
-            .login-card {
-                padding: 30px 20px;
-                max-width: 95%;
-                margin-bottom: 80px; 
-            }
-            .login-card h1 {
-                font-size: 2rem;
-            }
-            .lixi-bubble {
-                width: 90px;
-                height: 160px;
-                padding-top: 15px;
-            }
-            .lx-vn { font-size: 1.8rem; }
-            .lx-icon { font-size: 2.2rem; }
-            .lx-en { font-size: 0.6rem; }
-            
-            #btn-toggle-sound {
-                top: 15px;
-                left: 15px;
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-
-            .marquee-container {
-                height: 45px; 
-            }
-            .marquee-text {
-                line-height: 45px;
-            }
-            
-            .result-card {
-                padding: 30px 20px;
-            }
-            .prize-amount {
-                font-size: 1.5rem;
-            }
-        }
+        body { font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0fdf4; }
+        .interactive-element { transition: all 0.2s ease-in-out; }
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <!-- VIDEO BACKGROUND -->
-    <video id="bg-video" autoplay muted loop playsinline>
-        <source src="video_nen_new.mp4" type="video/mp4">
-    </video>
-    <!-- AUDIO BACKGROUND -->
-    <audio id="bg-music" loop autoplay>
-        <source src="nhac_nen.mp3" type="audio/mp3">
-    </audio>
-    <div id="bg-overlay"></div>
-    <div id="firebase-status">Kết nối: Đang kiểm tra...</div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    <!-- Nút đã được chuyển lên góc trên trái -->
-    <button id="btn-toggle-sound" onclick="window.toggleSound(event)">
-        🔊 Nhạc
-    </button>
-
-    <div id="login-screen">
-        <div class="login-card">
-            <h1>Lì Xì 2026</h1>
-            <p style="color:#666; margin-bottom: 5px;">Chào mừng năm mới Xuân Bính Ngọ<br>Thử ngay vận may</p>
-            
-            <input type="text" id="username" placeholder="Nhập tên của bạn..." autocomplete="off" oninput="window.clearError();">
-            <p style="font-size: 0.85rem; color: #d32f2f; margin-top: 5px; font-weight: bold;">⚠️ Lưu ý: Hãy nhập tên có dấu (Ví dụ: Hoàn, Thảo, Việt...)</p>
-            
-            <p id="error-msg"></p>
-            
-            <button class="btn-confirm" onclick="window.startGame()">BẮT ĐẦU SĂN LÌ XÌ</button>
-        </div>
-
-        <div class="marquee-container">
-            <div class="marquee-text" id="history-text">
-                <!-- Sẽ được điền bởi JS -->
-            </div>
-        </div>
-    </div>
-
-    <div id="game-container">
-        <div class="header-info">
-            <div class="header-pill">
-                Chào <span id="display-name">...</span>, chạm vào lì xì để bắt nhé!
-            </div>
-        </div>
-    </div>
-
-    <div class="result-overlay" id="result-modal">
-        <div class="result-card">
-            <h2 style="color: var(--red-lixi); margin:0;">🎉 Chúc Mừng 🎉</h2>
-            <p style="margin: 10px 0; color: #555;">Bạn <b id="winner-name"></b> đã nhận được:</p>
-            <div class="prize-amount" id="prize-amount">...</div>
-            <p style="font-size: 0.85rem; color: #888; font-style: italic;">Chụp màn hình lại khoe nhé!</p>
-            
-            <button class="btn-confirm" style="margin-top: 15px; padding: 12px 30px; font-size: 1rem;" onclick="window.showThankYou()">
-                Cảm ơn Việt đẹp trai
-            </button>
-        </div>
-    </div>
-
-    <!-- Màn hình cảm ơn (Overlay) -->
-    <div id="thank-you-screen">
-        <h1>Cảm Ơn Bạn!</h1>
-        <p>Xuân Bính Ngọ 2026 gõ cửa, chúc bạn một năm mới dồi dào sức khỏe, tâm an trí sáng, sự nghiệp vững vàng và tài lộc hanh thông. Mong mỗi ngày trôi qua đều là một bước tiến, mỗi khó khăn đều hóa thành cơ hội, và mỗi ước mơ đều có ngày chạm tới.</p>
-        <br>
-        <button class="btn-confirm" style="width: auto; padding: 10px 30px;" onclick="location.reload()">Chơi Lại</button>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-        // CẤU HÌNH FIREBASE CHÍNH CHỦ
-        const firebaseConfig = {
-            apiKey: "AIzaSyCjVdU0k4H_mzjfwyFD5oS2bqikGnDNw_M",
-            authDomain: "tets-4bdc2.firebaseapp.com",
-            projectId: "tets-4bdc2",
-            storageBucket: "tets-4bdc2.firebasestorage.app",
-            messagingSenderId: "530765839954",
-            appId: "1:530765839954:web:93ac8405e41e946ff6a98b"
-        };
-
-        let app, db, auth, userId;
-        let isFirebaseReady = false;
-        let fullHistoryData = [];
-        
-        // --- DỮ LIỆU ẢO BAN ĐẦU (FAKE WINNERS) ---
-        // Dữ liệu này sẽ hiện ngay khi vào game (thay thế cho dữ liệu cũ)
-        const fakeWinners = [
-            { name: "Minh Anh", prize: "50.000 VNĐ" },
-            { name: "Thanh Tùng", prize: "20.000 VNĐ" },
-            { name: "Hồng Nhung", prize: "50.000 VNĐ" },
-            { name: "Đức Thịnh", prize: "20.000 VNĐ" },
-            { name: "Ngọc Hà", prize: "100.000 VNĐ" }
+        // Dữ liệu câu hỏi Trắc nghiệm
+        const mcqQuestions = [
+            {
+                id: 1,
+                question: "Câu 1: Trong phần mềm chỉnh sửa ảnh, để tô màu kín cho một hình ngũ giác, em sẽ sử dụng công cụ có biểu tượng nào?",
+                options: ["A. Biểu tượng cục tẩy", "B. Biểu tượng chiếc bút chì", "C. Biểu tượng thùng sơn đổ màu", "D. Biểu tượng chiếc kính lúp"],
+                correct: 2, // C
+                explanation: "Công cụ thùng sơn (Fill with color) được sử dụng để đổ màu/tô màu kín vào một vùng không gian khép kín trên bức tranh.",
+                level: "Nhận biết"
+            },
+            {
+                id: 2,
+                question: "Câu 2: Để chạy thử một chương trình vừa lập trình xong trong Scratch, thao tác chuẩn xác nhất em cần làm là gì?",
+                options: ["A. Nháy chuột vào biểu tượng lá cờ xanh.", "B. Nháy chuột vào nút màu đỏ.", "C. Kéo khối lệnh ra khỏi khu vực kịch bản.", "D. Nháy đúp chuột vào nhân vật trên sân khấu."],
+                correct: 0, // A
+                explanation: "Biểu tượng Lá cờ xanh luôn được dùng để kích hoạt (bắt đầu) các kịch bản bắt đầu bằng sự kiện 'Khi bấm vào lá cờ xanh'. Nút màu đỏ dùng để dừng chương trình.",
+                level: "Nhận biết"
+            },
+            {
+                id: 3,
+                question: "Câu 3: Khối lệnh 'liên tục' trong Scratch thuộc nhóm lệnh có màu sắc và tên gọi là gì?",
+                options: ["A. Nhóm lệnh Chuyển động (màu xanh dương)", "B. Nhóm lệnh Điều khiển (màu cam)", "C. Nhóm lệnh Hiển thị (màu tím)", "D. Nhóm lệnh Sự kiện (màu vàng)"],
+                correct: 1, // B
+                explanation: "Các khối lệnh lặp (như 'lặp lại 10', 'liên tục') và rẽ nhánh đều thuộc nhóm lệnh Điều khiển, được biểu diễn bằng màu cam.",
+                level: "Nhận biết"
+            },
+            {
+                id: 4,
+                question: "Câu 4: Cấu trúc nào dưới đây yêu cầu máy tính phải đưa ra quyết định thực hiện hành động A hoặc hành động B tùy thuộc vào điều kiện đúng hay sai?",
+                options: ["A. Cấu trúc lặp liên tục", "B. Cấu trúc tuần tự", "C. Cấu trúc rẽ nhánh dạng đủ (Nếu... thì... nếu không thì...)", "D. Cấu trúc rẽ nhánh dạng khuyết (Nếu... thì...)"],
+                correct: 2, // C
+                explanation: "Cấu trúc rẽ nhánh dạng đủ cung cấp 2 hướng đi: làm việc này nếu đúng, và làm việc kia nếu sai. Dạng khuyết chỉ xử lý khi điều kiện đúng, bỏ qua khi sai.",
+                level: "Thông hiểu"
+            },
+            {
+                id: 5,
+                question: "Câu 5: Trong lập trình, 'Biến' đóng vai trò giống như vật dụng nào trong đời sống?",
+                options: ["A. Một chiếc kéo để cắt ghép hình ảnh.", "B. Một chiếc hộp để cất giữ số liệu hoặc chữ viết có thể thay đổi.", "C. Một chiếc công tắc để bật tắt máy tính.", "D. Một chiếc bút để vẽ đường thẳng."],
+                correct: 1, // B
+                explanation: "Biến là một vùng nhớ dùng để lưu trữ dữ liệu. Nó giống như một chiếc hộp chứa giá trị, và giá trị bên trong hộp có thể được lấy ra, cập nhật hoặc thay đổi bất cứ lúc nào trong khi chương trình chạy (ví dụ: biến Điểm số).",
+                level: "Thông hiểu"
+            },
+            {
+                id: 6,
+                question: "Câu 6: Biểu thức < (20 + 30) = 50 > trong nhóm lệnh Phép toán sẽ trả về kết quả gì cho chương trình?",
+                options: ["A. Đúng", "B. Sai", "C. 50", "D. 100"],
+                correct: 0, // A
+                explanation: "Máy tính sẽ tính toán phép cộng 20 + 30 = 50, sau đó so sánh xem 50 có bằng 50 hay không. Kết quả so sánh này là Đúng (True).",
+                level: "Vận dụng"
+            },
+            {
+                id: 7,
+                question: "Câu 7: Quá trình chạy thử chương trình, phát hiện ra nhân vật hoạt động không đúng ý tưởng ban đầu và tiến hành chỉnh sửa các khối lệnh được gọi là gì?",
+                options: ["A. Xây dựng kịch bản", "B. Chia sẻ sản phẩm", "C. Gỡ lỗi (Debugging)", "D. Thiết kế giao diện"],
+                correct: 2, // C
+                explanation: "Gỡ lỗi là kỹ năng quan trọng trong lập trình. Khi chương trình có kết quả sai lệch so với mong muốn, lập trình viên phải tìm ra khối lệnh bị sai và sửa lại cho đúng.",
+                level: "Thông hiểu"
+            }
         ];
 
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+        // Component Câu hỏi Trắc nghiệm nhiều lựa chọn
+        const MCQCard = ({ q }) => {
+            const [selected, setSelected] = useState(null);
 
-            const initAuth = async () => {
-                try {
-                    // SỬA LỖI AUTH: Sử dụng signInAnonymously cho Firebase riêng
-                    await signInAnonymously(auth);
-                } catch (err) {
-                    console.error("Auth failed:", err);
-                    loadFromLocalStorage();
-                }
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 mb-6">
+                    <h3 className="font-bold text-lg mb-4 text-green-800">{q.question} <span className="text-xs font-normal bg-green-100 text-green-700 px-2 py-1 rounded ml-2">{q.level}</span></h3>
+                    <div className="space-y-3">
+                        {q.options.map((opt, index) => {
+                            const isSelected = selected === index;
+                            const isCorrect = index === q.correct;
+                            const showStatus = selected !== null;
+                            
+                            let btnClass = "w-full text-left p-3 rounded-lg border-2 transition-all duration-200 ";
+                            
+                            if (!showStatus) {
+                                btnClass += "border-gray-200 hover:border-green-400 hover:bg-green-50";
+                            } else {
+                                if (isCorrect) {
+                                    btnClass += "border-green-500 bg-green-100 text-green-800 font-semibold";
+                                } else if (isSelected && !isCorrect) {
+                                    btnClass += "border-red-400 bg-red-50 text-red-700 opacity-70";
+                                } else {
+                                    btnClass += "border-gray-100 bg-gray-50 opacity-50";
+                                }
+                            }
+
+                            return (
+                                <button 
+                                    key={index}
+                                    disabled={showStatus}
+                                    onClick={() => setSelected(index)}
+                                    className={btnClass}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span>{opt}</span>
+                                        {showStatus && isCorrect && <i data-lucide="check-circle" className="text-green-600"></i>}
+                                        {showStatus && isSelected && !isCorrect && <i data-lucide="x-circle" className="text-red-500"></i>}
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    
+                    {selected !== null && (
+                        <div className={`mt-4 p-4 rounded-lg ${selected === q.correct ? 'bg-green-50 border-l-4 border-green-500' : 'bg-orange-50 border-l-4 border-orange-500'}`}>
+                            <p className="font-bold mb-1">
+                                {selected === q.correct ? "🎉 Tuyệt vời! Em đã chọn đúng." : "💡 Rất tiếc, câu trả lời chưa chính xác."}
+                            </p>
+                            <p className="text-gray-700">{q.explanation}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Component Câu Đúng/Sai
+        const TFCard = () => {
+            const tfData = [
+                { id: 'a', text: "Có thể gộp nhiều điều kiện lại với nhau bằng cách sử dụng phép toán 'và', 'hoặc'.", isTrue: true },
+                { id: 'b', text: "Trong một dự án Scratch, em chỉ được phép tạo ra tối đa một biến duy nhất.", isTrue: false },
+                { id: 'c', text: "Tên của một Biến nên được đặt ngắn gọn, mang ý nghĩa gợi nhớ đến dữ liệu mà nó đang chứa.", isTrue: true },
+                { id: 'd', text: "Các khối lệnh lặp không thể đặt lồng vào bên trong một khối lệnh rẽ nhánh.", isTrue: false }
+            ];
+
+            const [answers, setAnswers] = useState({});
+
+            const handleSelect = (itemId, val) => {
+                setAnswers(prev => ({...prev, [itemId]: val}));
             };
-            initAuth();
 
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    isFirebaseReady = true;
-                    document.getElementById('firebase-status').innerText = "Trạng thái: Online";
-                    document.getElementById('firebase-status').style.color = "#81c784";
-                    listenToHistory();
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 mb-6">
+                    <h3 className="font-bold text-lg mb-2 text-green-800">Câu 8: Đọc các phát biểu sau về cấu trúc điều khiển và Biến. Chọn Đúng (Đ) hoặc Sai (S).</h3>
+                    <div className="text-xs mb-4 text-gray-500 italic">(Nhấn chọn Đúng hoặc Sai ở từng dòng để xem kết quả)</div>
+                    <div className="space-y-4">
+                        {tfData.map((item) => {
+                            const answered = answers[item.id] !== undefined;
+                            const isCorrect = answers[item.id] === item.isTrue;
+
+                            return (
+                                <div key={item.id} className="flex flex-col md:flex-row md:items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                    <p className="mb-3 md:mb-0 md:w-3/4"><span className="font-bold mr-2">{item.id})</span> {item.text}</p>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            disabled={answered}
+                                            onClick={() => handleSelect(item.id, true)}
+                                            className={`px-4 py-1 rounded font-bold transition-colors ${answered ? (item.isTrue ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400') : 'bg-white border-2 border-green-400 text-green-600 hover:bg-green-50'}`}
+                                        >Đúng</button>
+                                        <button 
+                                            disabled={answered}
+                                            onClick={() => handleSelect(item.id, false)}
+                                            className={`px-4 py-1 rounded font-bold transition-colors ${answered ? (!item.isTrue ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-400') : 'bg-white border-2 border-red-400 text-red-600 hover:bg-red-50'}`}
+                                        >Sai</button>
+                                    </div>
+                                    {answered && (
+                                        <div className="w-8 ml-2 flex justify-center">
+                                            {isCorrect 
+                                                ? <i data-lucide="check" className="text-green-600 w-6 h-6"></i> 
+                                                : <i data-lucide="x" className="text-red-500 w-6 h-6"></i>
+                                            }
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    {Object.keys(answers).length === 4 && (
+                        <div className="mt-4 p-4 bg-blue-50 rounded-lg text-blue-800 text-sm">
+                            <p className="font-bold mb-1">Giải thích chung:</p>
+                            <ul className="list-disc pl-5 space-y-1">
+                                <li>Phát biểu (b) sai vì lập trình viên có thể tạo ra vô số biến tùy theo nhu cầu lưu trữ (Điểm, Mạng sống, Thời gian...).</li>
+                                <li>Phát biểu (d) sai vì cấu trúc lồng nhau (lặp chứa rẽ nhánh, hoặc rẽ nhánh chứa lặp) được sử dụng rất thường xuyên để giải quyết các thuật toán phức tạp.</li>
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Component Nối cột
+        const MatchCard = () => {
+            const leftCol = [
+                { id: 'l1', text: "1. Khối lệnh < [ ] = [ ] >" },
+                { id: 'l2', text: "2. Khối lệnh ( [ ] + [ ] )" },
+                { id: 'l3', text: "3. Khối lệnh < [ ] hoặc [ ] >" },
+                { id: 'l4', text: "4. Khối lệnh ( lấy ngẫu nhiên... )" }
+            ];
+            const rightCol = [
+                { id: 'a', text: "a. Tính tổng của hai giá trị số." },
+                { id: 'b', text: "b. Chọn ra một giá trị bất kỳ nằm trong một khoảng cho trước." },
+                { id: 'c', text: "c. Chỉ cần một trong hai điều kiện thành phần đúng, kết quả sẽ là Đúng." },
+                { id: 'd', text: "d. So sánh xem giá trị bên trái có giống giá trị bên phải hay không." }
+            ];
+
+            const correctMatches = { 'l1': 'd', 'l2': 'a', 'l3': 'c', 'l4': 'b' };
+            const [matches, setMatches] = useState({});
+            const [showResult, setShowResult] = useState(false);
+
+            const handleSelect = (leftId, rightId) => {
+                if(showResult) return;
+                setMatches(prev => ({...prev, [leftId]: rightId}));
+            };
+
+            const checkMatches = () => {
+                if(Object.keys(matches).length < 4) {
+                    alert("Em hãy ghép nối đầy đủ 4 ý nhé!");
+                    return;
                 }
+                setShowResult(true);
+            };
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 mb-6">
+                    <h3 className="font-bold text-lg mb-4 text-green-800">Câu 9: Ghép nối nhóm lệnh bên trái (1, 2, 3, 4) với chức năng tương ứng ở bên phải (a, b, c, d).</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            {leftCol.map(l => (
+                                <div key={l.id} className="flex flex-col border border-gray-200 p-3 rounded-lg bg-gray-50">
+                                    <span className="font-semibold mb-2">{l.text}</span>
+                                    <select 
+                                        disabled={showResult}
+                                        value={matches[l.id] || ""}
+                                        onChange={(e) => handleSelect(l.id, e.target.value)}
+                                        className="p-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    >
+                                        <option value="" disabled>-- Chọn chức năng --</option>
+                                        {rightCol.map(r => <option key={r.id} value={r.id}>{r.text}</option>)}
+                                    </select>
+                                    {showResult && (
+                                        <div className="mt-2 text-sm font-bold flex items-center">
+                                            {matches[l.id] === correctMatches[l.id] ? 
+                                                <span className="text-green-600 flex items-center"><i data-lucide="check" className="w-4 h-4 mr-1"></i> Chính xác</span> : 
+                                                <span className="text-red-500 flex items-center"><i data-lucide="x" className="w-4 h-4 mr-1"></i> Sai. Đáp án đúng là: {correctMatches[l.id]}</span>
+                                            }
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="space-y-3">
+                            {rightCol.map(r => (
+                                <div key={r.id} className="p-4 border border-blue-100 bg-blue-50 rounded-lg text-sm flex items-center">
+                                    <span className="font-bold text-blue-700 w-6 h-6 rounded-full bg-blue-200 flex items-center justify-center mr-3 flex-shrink-0">{r.id}</span>
+                                    {r.text}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {!showResult ? (
+                        <button onClick={checkMatches} className="mt-6 bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 shadow-md transition-colors">
+                            Kiểm tra kết nối
+                        </button>
+                    ) : (
+                        <div className="mt-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-500 text-sm">
+                            <p className="font-bold">Kết quả đúng:</p>
+                            <p>1 - d ; 2 - a ; 3 - c ; 4 - b</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Component Điền khuyết
+        const FillCard = () => {
+            const [inputs, setInputs] = useState({ i1: "", i2: "", i3: "", i4: "" });
+            const [checked, setChecked] = useState(false);
+            
+            const correctAnswers = {
+                i1: ["biến", "biến nhớ"],
+                i2: ["thay đổi", "cập nhật", "tăng lên"],
+                i3: ["lặp lại", "lặp lại cho đến khi"],
+                i4: ["điều kiện", "điều kiện dừng"]
+            };
+
+            const handleChange = (e, id) => {
+                if(checked) return;
+                setInputs({...inputs, [id]: e.target.value});
+            };
+
+            const checkAnswers = () => {
+                setChecked(true);
+            };
+
+            const isCorrect = (id) => {
+                const val = inputs[id].trim().toLowerCase();
+                return correctAnswers[id].includes(val);
+            };
+
+            const InputField = ({ id }) => {
+                let statusClass = "border-b-2 border-gray-400 bg-transparent px-2 py-1 mx-1 text-center font-bold text-blue-700 focus:outline-none focus:border-blue-500 w-24 md:w-32";
+                if (checked) {
+                    statusClass = isCorrect(id) ? "border-b-2 border-green-500 bg-green-50 px-2 py-1 mx-1 text-center font-bold text-green-700 w-24 md:w-32" : "border-b-2 border-red-500 bg-red-50 px-2 py-1 mx-1 text-center font-bold text-red-700 line-through w-24 md:w-32";
+                }
+                
+                return (
+                    <span className="inline-block relative">
+                        <input 
+                            type="text" 
+                            value={inputs[id]} 
+                            onChange={(e) => handleChange(e, id)}
+                            disabled={checked}
+                            className={statusClass}
+                            placeholder={`(${id.replace('i','')})`}
+                        />
+                        {checked && !isCorrect(id) && (
+                            <span className="absolute -bottom-6 left-0 text-xs text-green-600 font-bold whitespace-nowrap border border-green-300 bg-white px-1 rounded shadow-sm z-10">
+                                → {correctAnswers[id][0]}
+                            </span>
+                        )}
+                    </span>
+                );
+            };
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-green-100 mb-6 pb-8">
+                    <h3 className="font-bold text-lg mb-4 text-green-800">Câu 10: Điền từ thích hợp vào chỗ trống để hoàn thành đoạn văn mô tả thuật toán sau:</h3>
+                    <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800 mb-4 text-sm font-semibold">
+                        Gợi ý các từ khóa: thay đổi, điều kiện, biến, lặp lại cho đến khi.
+                    </div>
+                    <div className="text-gray-800 leading-loose text-lg">
+                        "Trong quá trình lập trình trò chơi Mê Cung, để lưu trữ số điểm thu thập được, em cần tạo một <InputField id="i1" /> . 
+                        Giá trị của điểm số sẽ tự động <InputField id="i2" /> khi người chơi chạm vào các đồng xu. 
+                        Mặt khác, nếu muốn nhân vật liên tục di chuyển về phía trước nhưng sẽ lập tức dừng lại khi chạm vào bức tường, em sẽ sử dụng cấu trúc điều khiển <InputField id="i3" /> 
+                        với <InputField id="i4" /> được thiết lập là 'Đang chạm màu đen (màu của tường)'."
+                    </div>
+                    {!checked ? (
+                        <button onClick={checkAnswers} className="mt-6 bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 shadow-md transition-colors">
+                            Kiểm tra từ đã điền
+                        </button>
+                    ) : (
+                        <div className="mt-8 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                            <p className="font-bold text-green-800 mb-2">Đáp án chuẩn:</p>
+                            <p className="text-sm">(1) biến ; (2) thay đổi ; (3) lặp lại cho đến khi ; (4) điều kiện.</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Component Tự luận
+        const EssayCard = ({ qNum, title, desc, hint, answer, level }) => {
+            const [showAns, setShowAns] = useState(false);
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-purple-100 mb-6">
+                    <h3 className="font-bold text-lg mb-2 text-purple-800">{qNum}: {title} <span className="text-xs font-normal bg-purple-100 text-purple-700 px-2 py-1 rounded ml-2">{level}</span></h3>
+                    <div className="text-gray-700 mb-4 whitespace-pre-line leading-relaxed bg-gray-50 p-4 rounded border border-gray-100">
+                        {desc}
+                    </div>
+                    
+                    {!showAns ? (
+                        <div className="flex flex-col items-start">
+                            <p className="text-sm text-gray-500 mb-3 italic">Em hãy tư duy giải quyết bài toán ra nháp, sau đó đối chiếu với hướng dẫn.</p>
+                            <button 
+                                onClick={() => setShowAns(true)}
+                                className="bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-300 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center"
+                            >
+                                <i data-lucide="eye" className="w-5 h-5 mr-2"></i> Xem hướng dẫn giải / Kịch bản tham khảo
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mt-4 p-5 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-bold text-purple-800">Hướng dẫn chấm / Đáp án:</h4>
+                                <button onClick={() => setShowAns(false)} className="text-gray-400 hover:text-gray-600 text-sm underline">Ẩn đi</button>
+                            </div>
+                            <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-line">
+                                {answer}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const MainApp = () => {
+            const [showMatrix, setShowMatrix] = useState(false);
+
+            useEffect(() => {
+                // Initialize Lucide icons
+                lucide.createIcons();
             });
 
-        } catch (e) {
-            console.error("Firebase Init Error:", e);
-            loadFromLocalStorage();
-        }
+            return (
+                <div className="max-w-4xl mx-auto py-8 px-4">
+                    {/* Header */}
+                    <div className="text-center mb-8 bg-white p-8 rounded-2xl shadow-sm border-t-8 border-green-500">
+                        <h2 className="text-gray-500 font-bold uppercase tracking-wider mb-2">Chương Trình Luyện Tập Tương Tác</h2>
+                        <h1 className="text-3xl font-extrabold text-green-700 mb-4">ĐỀ THI MINH HỌA CUỐI KÌ II - TIN HỌC LỚP 5</h1>
+                        <p className="text-gray-600 mb-4">Bộ sách: Kết nối tri thức với cuộc sống</p>
+                        <div className="flex justify-center gap-4 text-sm font-semibold">
+                            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">Thời gian: Tự do</span>
+                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">Hình thức: Làm trực tiếp</span>
+                        </div>
+                        <div className="mt-4 text-left bg-blue-50 p-3 rounded text-sm text-blue-800 border-l-4 border-blue-400 flex items-start">
+                            <i data-lucide="info" className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"></i>
+                            <p><strong>Hướng dẫn:</strong> Em hãy đọc kỹ câu hỏi và nháy chuột chọn đáp án. Máy tính sẽ tự động chấm điểm và hiển thị lời giải ngay lập tức giúp em ôn tập kiến thức hiệu quả.</p>
+                        </div>
+                    </div>
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // ĐỔI ĐƯỜNG DẪN MỚI ĐỂ XOÁ SẠCH DỮ LIỆU CŨ TRÊN DATABASE (NẾU CÓ)
-        const COLLECTION_NAME = `artifacts/${appId}/public/data/lixi_history_v3`;
-        
-        // QUAN TRỌNG: ĐỔI KEY LOCAL STORAGE ĐỂ ÉP TRÌNH DUYỆT XOÁ DỮ LIỆU CŨ (Tua, Hân, Kiệt...)
-        const LOCAL_STORAGE_KEY = 'lixi_storage_v3_final';
-        
-        function loadFromLocalStorage() {
-            const statusEl = document.getElementById('firebase-status');
-            statusEl.innerText = "Chế độ: Offline (Lỗi kết nối/Auth)";
-            statusEl.style.color = "orange";
-            
-            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-            let displayData = [...fakeWinners, ...localData];
-            
-            fullHistoryData = localData; 
-            updateMarquee(displayData);
-        }
+                    {/* Section I: Trắc nghiệm */}
+                    <div className="mb-8">
+                        <div className="flex items-center mb-6">
+                            <div className="bg-green-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl mr-3 shadow-md">I</div>
+                            <h2 className="text-2xl font-extrabold text-gray-800 border-b-2 border-green-200 pb-1 flex-grow">PHẦN TRẮC NGHIỆM (6 Điểm)</h2>
+                        </div>
+                        
+                        {mcqQuestions.map(q => <MCQCard key={q.id} q={q} />)}
+                        
+                        <TFCard />
+                        <MatchCard />
+                        <FillCard />
+                    </div>
 
-        function saveToLocalStorage(name, prize) {
-            let localData = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
-            localData.unshift({ name, prize, timestamp: Date.now() });
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localData));
-            fullHistoryData = localData;
-            
-            updateMarquee([...fakeWinners, ...localData]);
-        }
+                    {/* Section II: Tự luận */}
+                    <div className="mb-8">
+                        <div className="flex items-center mb-6">
+                            <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl mr-3 shadow-md">II</div>
+                            <h2 className="text-2xl font-extrabold text-gray-800 border-b-2 border-purple-200 pb-1 flex-grow">PHẦN TỰ LUẬN / THỰC HÀNH (4 Điểm)</h2>
+                        </div>
 
-        function listenToHistory() {
-            if (!db) return;
-            const q = collection(db, COLLECTION_NAME);
-            
-            onSnapshot(q, (snapshot) => {
-                const historyData = [];
-                snapshot.forEach((doc) => {
-                    historyData.push(doc.data());
-                });
-                
-                fullHistoryData = historyData; 
-                historyData.sort((a, b) => b.timestamp - a.timestamp);
-                
-                // Hiển thị: Fake Winners trộn với Real Winners
-                let displayList = [...historyData.slice(0, 20)];
-                if (displayList.length < 5) {
-                    displayList = [...fakeWinners, ...displayList];
-                }
-                
-                updateMarquee(displayList);
+                        <EssayCard 
+                            qNum="Câu 11" 
+                            title="Phân tích tư duy (1 Điểm)" 
+                            level="Thông hiểu"
+                            desc={`Trong ngôn ngữ lập trình Scratch, cấu trúc "Nếu ... thì ..." (rẽ nhánh khuyết) và "Nếu ... thì ... nếu không thì ..." (rẽ nhánh đủ) có điểm gì khác nhau cốt lõi về cách hoạt động? Em hãy nêu một ví dụ thực tế trong đời sống để minh họa.`}
+                            answer={`**Điểm khác nhau:**\n- Lệnh "Nếu... thì...": Máy tính chỉ kiểm tra điều kiện. Nếu điều kiện ĐÚNG, máy tính thực hiện khối lệnh bên trong. Nếu điều kiện SAI, máy tính bỏ qua và đi tiếp.\n- Lệnh "Nếu... thì... nếu không thì...": Cung cấp 2 lựa chọn. Nếu ĐÚNG thì làm việc thứ 1, nhưng nếu SAI thì bắt buộc làm việc thứ 2.\n\n**Ví dụ minh họa:**\n- Dạng khuyết: "Nếu trời mưa thì em mang ô". (Trời không mưa thì không làm gì cả).\n- Dạng đủ: "Nếu em được điểm 10 thì mẹ thưởng đồ chơi, nếu không thì em phải tưới cây". (Luôn có 1 hành động xảy ra dù điều kiện đúng hay sai).`}
+                        />
 
-            }, (error) => {
-                console.error("Firestore Error:", error);
-                loadFromLocalStorage();
-            });
-        }
+                        <EssayCard 
+                            qNum="Câu 12" 
+                            title="Xây dựng thuật toán Hình học (1.5 Điểm)" 
+                            level="Vận dụng"
+                            desc={`Em hãy mô tả (bằng lời hoặc viết các khối lệnh tương tự Scratch) kịch bản để điều khiển nhân vật chiếc bút vẽ một Hình Vuông có cạnh dài 150 bước trên sân khấu. Biết rằng để vẽ hình vuông, nhân vật cần rẽ góc 90 độ.`}
+                            answer={`**Kịch bản mô tả các khối lệnh cần thiết:**\n\n1. Sự kiện: [Khi bấm vào lá cờ xanh]\n2. Khối lệnh Mở đầu: \n   - [Xóa tất cả] (để làm sạch sân khấu)\n   - [Đặt bút] (để bắt đầu vẽ)\n3. Khối lệnh Điều khiển (Vòng lặp):\n   - [Lặp lại (4) lần] (vì hình vuông có 4 cạnh)\n4. Các lệnh bên trong vòng lặp:\n   - [Di chuyển (150) bước]\n   - [Xoay phải (90) độ] (hoặc xoay trái 90 độ)\n   - [Đợi (1) giây] (tùy chọn, để xem nét vẽ rõ hơn)`}
+                        />
 
-        function updateMarquee(data) {
-            const textElement = document.getElementById('history-text');
-            if (!textElement) return;
+                        <EssayCard 
+                            qNum="Câu 13" 
+                            title="Lập trình Trò chơi với Biến số (1.5 Điểm)" 
+                            level="Vận dụng cao"
+                            desc={`Trong trò chơi "Tàu Vũ Trụ Dọn Rác", em đã tạo một biến tên là "Năng lượng". Yêu cầu như sau:\nLập trình cho nhân vật rác vũ trụ: Nếu nó chạm vào nhân vật Tàu Vũ Trụ, thì lập tức phát ra âm thanh "Pop", trừ đi 1 giá trị của biến "Năng lượng", và nhân vật rác đó bị ẩn đi. \nEm hãy viết kịch bản khối lệnh mô tả tình huống rẽ nhánh này.`}
+                            answer={`**Kịch bản khối lệnh tham khảo:**\n\n[Khối lệnh điều khiển thường được lồng trong một vòng lặp (Liên tục) để luôn kiểm tra]\n\n[Nếu < Đang chạm [Tàu Vũ Trụ] ? > thì]\n    [Bắt đầu âm thanh (Pop)]\n    [Thay đổi (Năng lượng) một lượng (-1)]\n    [Ẩn]\n\n*Học sinh trả lời đúng logic thuật toán: có điều kiện chạm (0.5đ), có lệnh trừ điểm biến (-1) (0.5đ), có lệnh phát âm thanh/ẩn (0.5đ).*`}
+                        />
+                    </div>
 
-            if (data.length === 0) data = fakeWinners;
-
-            const textContent = data.map(item => 
-                `<span style="color:#ffd700; margin-left: 20px;">★</span> <b style="color: white;">${item.name}</b>: <span style="color: #ffd700;">${item.prize}</span>`
-            ).join("");
-            
-            textElement.innerHTML = textContent;
-
-            textElement.style.animation = 'none';
-            textElement.offsetHeight; /* trigger reflow */
-            textElement.style.animation = 'scroll 25s linear infinite';
-        }
-
-        window.saveResultToFirebase = async (name, prize) => {
-            if (db && isFirebaseReady && userId) {
-                try {
-                    await addDoc(collection(db, COLLECTION_NAME), {
-                        name: name,
-                        prize: prize,
-                        timestamp: Date.now(),
-                        uid: userId
-                    });
-                } catch (e) {
-                    console.error("Save Error:", e);
-                    saveToLocalStorage(name, prize);
-                }
-            } else {
-                saveToLocalStorage(name, prize);
-            }
+                    {/* Ma trận */}
+                    <div className="mt-12 text-center border-t border-gray-200 pt-8">
+                        <button 
+                            onClick={() => setShowMatrix(!showMatrix)}
+                            className="text-gray-500 hover:text-green-600 font-semibold flex items-center justify-center w-full transition-colors"
+                        >
+                            {showMatrix ? "Ẩn Bảng Ma Trận Đề" : "Xem Bảng Ma Trận Tóm Tắt"}
+                            <i data-lucide={showMatrix ? "chevron-up" : "chevron-down"} className="ml-1 w-4 h-4"></i>
+                        </button>
+                        
+                        {showMatrix && (
+                            <div className="mt-4 bg-white p-4 rounded-lg shadow border border-gray-200 text-left overflow-x-auto">
+                                <h3 className="font-bold text-center mb-3">MA TRẬN ĐỀ THI MINH HỌA TÓM TẮT</h3>
+                                <table className="w-full text-sm border-collapse border border-gray-300">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border border-gray-300 p-2">Mạch kiến thức</th>
+                                            <th className="border border-gray-300 p-2 text-center">Nhận biết</th>
+                                            <th className="border border-gray-300 p-2 text-center">Thông hiểu</th>
+                                            <th className="border border-gray-300 p-2 text-center">Vận dụng</th>
+                                            <th className="border border-gray-300 p-2 text-center">Tổng Điểm</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-gray-300 p-2">Sử dụng phần mềm đồ họa (Bài 9A)</td>
+                                            <td className="border border-gray-300 p-2 text-center">1 TN (0.5đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center"></td>
+                                            <td className="border border-gray-300 p-2 text-center"></td>
+                                            <td className="border border-gray-300 p-2 text-center font-bold">0.5đ</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-gray-300 p-2">Điều khiển, cấu trúc kịch bản (Bài 12, 13)</td>
+                                            <td className="border border-gray-300 p-2 text-center">2 TN (1.0đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center">1 TN (0.5đ)<br/>1 Điền (1.0đ)<br/>1 TL (1.0đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center">1 TL (1.5đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center font-bold">5.0đ</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-gray-300 p-2">Sử dụng Biến và Biểu thức (Bài 14, 15, 16)</td>
+                                            <td className="border border-gray-300 p-2 text-center"></td>
+                                            <td className="border border-gray-300 p-2 text-center">2 TN (1.0đ)<br/>1 Đ/S (1.0đ)<br/>1 Nối (0.5đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center">1 TN (0.5đ)<br/>1 TL (1.5đ)</td>
+                                            <td className="border border-gray-300 p-2 text-center font-bold">4.5đ</td>
+                                        </tr>
+                                        <tr className="bg-gray-50 font-bold">
+                                            <td className="border border-gray-300 p-2 text-right">Tổng cộng:</td>
+                                            <td className="border border-gray-300 p-2 text-center">1.5 điểm (15%)</td>
+                                            <td className="border border-gray-300 p-2 text-center">4.0 điểm (40%)</td>
+                                            <td className="border border-gray-300 p-2 text-center">4.5 điểm (45%)</td>
+                                            <td className="border border-gray-300 p-2 text-center text-red-600">10.0đ</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p className="text-xs text-gray-500 mt-2 italic">* Tỷ lệ điểm ở mức Vận dụng được nâng lên nhẹ (45% so với 20% gốc) thông qua các câu hỏi tư duy logic thuật toán sâu hơn để đảm bảo tính chất thi thử/rèn luyện cao.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
         };
 
-        // --- CẤU HÌNH RESPONSIVE & GAME ---
-        const isMobile = window.innerWidth < 768;
-        const BUBBLE_COUNT = isMobile ? 8 : 18;
-        const SPEED_BASE = isMobile ? 0.8 : 1.0;
-        
-        const bubbleWidth = isMobile ? 90 : 110; 
-        const bubbleHeight = isMobile ? 160 : 200;
-
-        const templates = [
-            { class: 'style-yellow', en: 'SAY HI', vn: 'Tết', icon: '👫' },
-            { class: 'style-red-1', en: 'EM CHÀO', vn: 'Tết', icon: '💃' },
-            { class: 'style-green', en: 'HAPPY', vn: 'Tết', icon: '👦' },
-            { class: 'style-red-2', en: 'ĐỦ ĐẦY', vn: 'Tết', icon: '🐴', isSub: true },
-            { class: 'style-red-2', en: 'TÀI LỘC', vn: 'Tết', icon: '💰', isSub: true },
-            { class: 'style-red-2', en: 'HẠNH PHÚC', vn: 'Tết', icon: '🥰', isSub: true }
-        ];
-
-        const prizes = [
-            "Cái nịt (Limited Edition) 🎀",
-            "Một tràng pháo tay 👏",
-            "Sếp thương, đồng nghiệp quý, deadline tự động lùi ⏳",
-            "Tết này vẫn giống Tết xưa, vẫn đi xe số vẫn thừa ghế sau 🏍️",
-            "1.000 VNĐ (Tưởng tượng) 💸",
-            "Tết này ăn không lo béo, tiêu không lo nghèo 🧧",
-            "Lì xì không có tiền, nhưng có vận may đi kèm 🍀",
-            "Tiền vào túi nhanh như tốc độ bạn tiêu tiền 🚀",
-            "Mong bạn giàu thật, không phải giàu qua lời kể 🤫",
-            "Mong năm mới giàu thật chứ không giàu trong… suy nghĩ 🧠",
-            "Một nụ cười tỏa nắng 😁",
-            "Mọi ước mơ đều thành hiện thực, trừ ước mơ lười biếng) 🛌",
-            "Chúc bạn sớm có người yêu (trong mơ) 💭",
-            "Lì xì bằng niềm tin ✨",
-            "500 anh em 👨‍👨‍👦‍👦",
-            "Không có gì ngoài tấm lòng ❤️",
-            "Sự đẹp trai của Admin 😎",
-            "Chúc bạn may mắn lần sau... mà chắc không có lần sau đâu! 😂"
-        ];
-
-        let userName = "";
-        let animationFrameId;
-        const bubbles = []; 
-        let isGameOver = false;
-        let musicStarted = false;
-
-        window.toggleSound = (e) => {
-            if (e) e.stopPropagation();
-            const music = document.getElementById('bg-music');
-            if (music.paused) {
-                music.play().catch(e => console.log("Audio requires interaction"));
-                musicStarted = true;
-                document.getElementById('btn-toggle-sound').innerHTML = "🔊 Nhạc: Bật";
-            } else {
-                music.pause();
-                document.getElementById('btn-toggle-sound').innerHTML = "🔇 Nhạc: Tắt";
-            }
-        };
-
-        window.forcePlayMusic = () => {
-            if (musicStarted) return;
-            const music = document.getElementById('bg-music');
-            const video = document.getElementById('bg-video');
-            if (video && video.paused) video.play().catch(() => {});
-            if (music) {
-                music.play().then(() => {
-                    musicStarted = true;
-                }).catch((e) => {
-                    console.log("Autoplay blocked, waiting for interaction");
-                });
-            }
-        };
-
-        window.clearError = () => {
-            const input = document.getElementById('username');
-            const errorMsg = document.getElementById('error-msg');
-            input.classList.remove('error');
-            errorMsg.style.display = 'none';
-            window.forcePlayMusic();
-        }
-
-        // --- HÀM KIỂM TRA TÊN HỢP LỆ ---
-        function isValidVietnameseName(name) {
-            const blockedWords = ["fa", "abc", "xyz", "admin", "123", "test", "demo", "null", "undefined", "bot"];
-            if (blockedWords.includes(name.toLowerCase())) return false;
-            // Cho phép ký tự tiếng Việt đầy đủ, dấu cách, độ dài 2-50
-            const vietnameseRegex = /^[a-zA-ZàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ\s]{2,50}$/;
-            return vietnameseRegex.test(name);
-        }
-
-        window.startGame = () => {
-            const input = document.getElementById('username');
-            const errorMsg = document.getElementById('error-msg');
-            const rawName = input.value.trim();
-
-            if (!rawName) {
-                input.classList.add('error');
-                input.focus();
-                return;
-            }
-
-            if (!isValidVietnameseName(rawName)) {
-                input.classList.add('error');
-                errorMsg.innerHTML = `⚠️ Tên không hợp lệ!<br>Vui lòng nhập tên thật, không dùng ký tự lạ hoặc từ viết tắt.`;
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            const playCount = fullHistoryData.filter(p => p.name.toLowerCase() === rawName.toLowerCase()).length;
-
-            if (playCount >= 2) {
-                input.classList.add('error');
-                errorMsg.innerHTML = `⚠️ Tên "<b>${rawName}</b>" đã hết lượt tham gia!<br>Quy định: Tối đa 2 người cùng tên được nhận thưởng.`;
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            userName = rawName;
-            document.getElementById('display-name').innerText = userName;
-            
-            window.forcePlayMusic(); 
-            document.getElementById('login-screen').classList.add('slide-up');
-            initBubbles();
-            animate();
-        };
-
-        window.showThankYou = () => {
-            const resultModal = document.getElementById('result-modal');
-            const thankYouScreen = document.getElementById('thank-you-screen');
-            resultModal.classList.remove('show');
-            setTimeout(() => {
-                thankYouScreen.classList.add('visible');
-            }, 300);
-        };
-
-        class Bubble {
-            constructor() {
-                this.el = document.createElement('div');
-                this.el.className = 'lixi-bubble';
-                const tpl = templates[Math.floor(Math.random() * templates.length)];
-                this.el.classList.add(tpl.class);
-                
-                if (tpl.isSub) {
-                    this.el.innerHTML = `<div class="lx-vn">${tpl.vn}</div><div class="lx-sub">${tpl.en}</div><div class="lx-icon">${tpl.icon}</div>`;
-                } else {
-                    this.el.innerHTML = `<div class="lx-en">${tpl.en}</div><div class="lx-vn">${tpl.vn}</div><div class="lx-icon">${tpl.icon}</div>`;
-                }
-
-                this.width = bubbleWidth;
-                this.height = bubbleHeight;
-                this.x = Math.random() * (window.innerWidth - this.width);
-                this.y = Math.random() * (window.innerHeight - this.height);
-                
-                const dirX = Math.random() < 0.5 ? -1 : 1;
-                const dirY = Math.random() < 0.5 ? -1 : 1;
-                this.vx = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirX;
-                this.vy = (Math.random() * 0.5 + 0.5) * SPEED_BASE * dirY;
-
-                this.el.addEventListener('pointerdown', (e) => {
-                    e.stopPropagation(); 
-                    if (!isGameOver) {
-                        this.pop();
-                    }
-                });
-
-                document.getElementById('game-container').appendChild(this.el);
-                this.updatePosition(); 
-            }
-
-            update() {
-                if (isGameOver) return;
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x <= 0 || this.x + this.width >= window.innerWidth) {
-                    this.vx *= -1;
-                    this.x = Math.max(0, Math.min(this.x, window.innerWidth - this.width));
-                }
-                if (this.y <= 0 || this.y + this.height >= window.innerHeight) {
-                    this.vy *= -1;
-                    this.y = Math.max(0, Math.min(this.y, window.innerHeight - this.height));
-                }
-                this.updatePosition();
-            }
-
-            updatePosition() {
-                this.el.style.transform = `translate(${this.x}px, ${this.y}px)`;
-            }
-
-            pop() {
-                isGameOver = true;
-                cancelAnimationFrame(animationFrameId); 
-                this.el.classList.add('popped'); 
-                
-                let prize;
-                const n = userName.toLowerCase();
-
-                // Logic trúng thưởng mới
-                if (n.includes('hoàn')) {
-                    prize = "100.000 VNĐ";
-                } 
-                else if (n.includes('quang')) {
-                    prize = "10.000 VNĐ";
-                } 
-                else if (n.includes('thảo') || n.includes('nguyệt')) {
-                    prize = "5.000 VNĐ";
-                }
-                else {
-                    prize = prizes[Math.floor(Math.random() * prizes.length)];
-                }
-                
-                if (window.saveResultToFirebase) {
-                    window.saveResultToFirebase(userName, prize);
-                }
-
-                setTimeout(() => {
-                    document.getElementById('winner-name').innerText = userName;
-                    document.getElementById('prize-amount').innerText = prize;
-                    document.getElementById('result-modal').classList.add('show');
-                }, 300);
-            }
-        }
-
-        function initBubbles() {
-            for (let i = 0; i < BUBBLE_COUNT; i++) {
-                bubbles.push(new Bubble());
-            }
-        }
-
-        function animate() {
-            if (isGameOver) return;
-            bubbles.forEach(b => b.update());
-            animationFrameId = requestAnimationFrame(animate);
-        }
-
-        window.addEventListener('resize', () => {
-            bubbles.forEach(b => {
-                b.x = Math.min(b.x, window.innerWidth - b.width);
-                b.y = Math.min(b.y, window.innerHeight - b.height);
-                b.updatePosition();
-            });
-        });
-        
-        // Load data immediately even offline
-        updateMarquee(fakeWinners);
-
-        window.addEventListener('load', () => {
-             window.forcePlayMusic();
-             const unlockAudio = () => {
-                 window.forcePlayMusic();
-                 document.removeEventListener('click', unlockAudio);
-                 document.removeEventListener('touchstart', unlockAudio);
-             };
-             document.addEventListener('click', unlockAudio);
-             document.addEventListener('touchstart', unlockAudio);
-        });
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<MainApp />);
     </script>
 </body>
 </html>
-
-
